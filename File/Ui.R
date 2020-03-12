@@ -1,6 +1,6 @@
 #############################################################################################################
 
-    #UI
+                              #UI
 
 #############################################################################################################
 
@@ -14,6 +14,7 @@ header <- dashboardHeader(
 #Sidebar content of the dashboard
 sidebar <- dashboardSidebar(
   sidebarMenu(
+    style = "position: fixed; overflow: visible;",
     menuItem("Analisi Territoriale", tabName = "analisi", icon = icon("dashboard")),
     menuItem("Analisi Trend", tabName = "trend", icon = icon("chart-line")),
     menuItem("Informazioni",tabName = "info", icon = icon("question-circle")),
@@ -93,7 +94,8 @@ frow4<- fluidRow(
 )
 frow5<-fluidRow(
   h4(checkboxInput("checkbox", label = "Tabella", value = FALSE)),
-  tableOutput("tabella")
+  #tableOutput("tabella")
+  div(style = 'overflow-x: scroll', DT::dataTableOutput('tabella'))
   
 )
 
@@ -120,7 +122,7 @@ frow9 <- fluidRow(
 frow10<- fluidRow(
   h2("In questo momento di grande scompiglio vi vinvitiamo a prestare la massima attenzione alle misure si sicurezza e prevenzione. Diffidate da alcune informazioni che circolano sui social e nel web. ",align="justify"),
   hr(),
-  h3("Ogni sera alle 18:00 sarÃ  possibile seguire in diretta le parole del Primo Ministro Giuseppe Conte o della Protezione civile presso i canali youtube.",align="justify"),
+  h3("Ogni sera alle 18:00 sarà possibile seguire in diretta le parole del Primo Ministro Giuseppe Conte o della Protezione civile presso i canali youtube.",align="justify"),
   HTML(paste0(
     "<br>",
     "<table style='margin-left:auto; margin-right:auto;'>",
@@ -130,11 +132,11 @@ frow10<- fluidRow(
     "</tr>",
     "</table>",
     "<br>")),
-  h2("Voci piÃ¹ autorevoli:", align="center"),
+  h2("Voci più autorevoli:", align="center"),
   h3(helpText(   a("Protezione Civile",     href="http://www.protezionecivile.gov.it/home"))),
   h3(helpText(   a("Il Governo",     href="http://www.governo.it/it/il-governo"))),
   h3(helpText(   a("Ministero della salute",     href="http://www.salute.gov.it/portale/rapportiInternazionali/menuContenutoRapportiInternazionali.jsp?lingua=italiano&area=rapporti&menu=mondiale"))),
-  h3(helpText(   a("Organizzazione Mondiale della SanitÃ ",     href="http://www.euro.who.int/en/home"))),
+  h3(helpText(   a("Organizzazione Mondiale della Sanità",     href="http://www.euro.who.int/en/home"))),
   h3(helpText(   a("Rai News",     href="https://www.rainews.it/"))),
   h3(helpText(   a("Sky tg 24",     href="https://tg24.sky.it/"))),
   h3(helpText(   a("Ospedale Sacco Milano",     href="https://www.asst-fbf-sacco.it/news"))),
@@ -157,3 +159,4 @@ body <- dashboardBody(tabItems(tabItem(tabName = "analisi",frow1, frow2, frow3,f
 
 #completing the ui part with dashboardPage
 ui <- dashboardPage(title = 'Analisi Covid-19 Italia', header, sidebar, body, skin='black')
+

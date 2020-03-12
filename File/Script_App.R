@@ -161,6 +161,7 @@ header <- dashboardHeader(
 #Sidebar content of the dashboard
 sidebar <- dashboardSidebar(
   sidebarMenu(
+    style = "position: fixed; overflow: visible;",
     menuItem("Analisi Territoriale", tabName = "analisi", icon = icon("dashboard")),
     menuItem("Analisi Trend", tabName = "trend", icon = icon("chart-line")),
     menuItem("Informazioni",tabName = "info", icon = icon("question-circle")),
@@ -240,7 +241,8 @@ frow4<- fluidRow(
 )
 frow5<-fluidRow(
   h4(checkboxInput("checkbox", label = "Tabella", value = FALSE)),
-  tableOutput("tabella")
+  #tableOutput("tabella")
+  div(style = 'overflow-x: scroll', DT::dataTableOutput('tabella'))
   
 )
 
@@ -699,11 +701,16 @@ server <- function(input, output,session) {
   
   sceltatabella<-reactive({
     if(input$SceltaVisuale=="Regione"){
-      as.data.frame(Giorno_Reg()[,c(4,7,8,9,10,11,12,13,14,15)])
-      
+      #tab<-as.data.frame(Giorno_Reg()[,c(4,7,8,9,10,11,12,13,14,15)])
+      data.frame("Regione"=Giorno_Reg()[,4],"Ricoverati"=Giorno_Reg()[,7],"Terapia Intensiva"=Giorno_Reg()[,8],"Totale Ospedalizzati"=Giorno_Reg()[,9],
+                 "Isolamento domiciliare"=Giorno_Reg()[,10],"Attualmente Positivi"=Giorno_Reg()[,11],
+                 "Nuovi attualmente Positivi"=Giorno_Reg()[,12],"Dimessi guariti"=Giorno_Reg()[,13],"Deceduti"=Giorno_Reg()[,14],
+                 "Totale Casi"=Giorno_Reg()[,15])
+
     }else{
       if(input$SceltaVisuale=="Provincia"){
-        as.data.frame(Giorno_Prov()[,c(4,6,10)])
+        data.frame("Regione"=Giorno_Prov()[!is.na(Giorno_Prov()[,8]),4],"Provincia"=Giorno_Prov()[!is.na(Giorno_Prov()[,8]),6],"Totale Casi"=Giorno_Prov()[!is.na(Giorno_Prov()[,8]),10])
+        #as.data.frame(Giorno_Prov()[,c(4,6,10)])
       }
     }
   })
@@ -715,8 +722,17 @@ server <- function(input, output,session) {
     }
   })
   
-  output$tabella<-renderTable({ sceltaOutput()
-  })
+  output$tabella<- DT::renderDataTable({
+
+    DT::datatable(sceltaOutput(), rownames = FALSE, options = list(
+      columnDefs = list(list(className = 'dt-center')),
+      pageLength =10,
+    lengthMenu = c(5, 10, 15, 20)
+    ))
+
+    
+    })
+  
   
   
   #creating series plot
