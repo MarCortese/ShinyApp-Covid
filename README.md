@@ -1,6 +1,10 @@
 # Covid-19
 Questo progetto è stato ispirato dalla condivisione dei dati da parte di OnData https://github.com/ondata/covid19italia sul Covid-19 in Italia.
 
+App:
+
+https://marcocortese.shinyapps.io/Covid-19Italia/
+
 
 È stata realizzata una shiny app per analizzare i dati giornalieri pubblicati dalla protezione civile per la situazione di "Pandemia" che stiamo vivendo in questo periodo.
 
