@@ -86,7 +86,14 @@ frow2<- fluidRow(
                    min = "2020-02-24", max = Sys.Date(),
                    startview = 'month', language = 'it', weekstart = 1
          )),
-  column(4),
+  column(4,
+         tags$style(type='text/css', '#tassoMortalita {background-color: rgb(236, 240, 245); borders-color:rgb(236, 240, 245); color: navy;}'),
+         tags$style(type='text/css', '#tassoGuarigione {background-color: rgb(236, 240, 245); borders-color:rgb(236, 240, 245); color: navy;}'),
+         h5("Tasso di mortalità",align="center"),
+         h5(verbatimTextOutput("tassoMortalita"),align="center"),
+         h5("Tasso di guarigione",align="center"),
+         h5(verbatimTextOutput("tassoGuarigione"),align="center"),
+         ),
   column(4,
          hr(),
          hr(),
@@ -484,6 +491,27 @@ server <- function(input, output,session) {
           }
         }
   })
+  
+  
+  Mortalita<-reactive({
+    round(Giorno_Naz()$deceduti/Giorno_Naz()$totale_casi*100,2)
+  })
+  
+  Guarigione<-reactive({
+    round(Giorno_Naz()$dimessi_guariti/Giorno_Naz()$totale_casi*100,2)
+  })
+  
+  output$tassoMortalita <- renderPrint({
+    paste0(Mortalita(),"%")
+  })
+  
+  output$tassoGuarigione <- renderPrint({
+    paste0(Guarigione(),"%")
+  })
+  
+  
+  
+  
   Giorno_Reg<-reactive({
         if(nrow(as.data.frame(d_reg[d_reg$data %like% input$date2,]))!=0){
         filtrata_reg<-as.data.frame(d_reg[d_reg$data %like% input$date2,])

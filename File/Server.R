@@ -269,6 +269,25 @@ server <- function(input, output,session) {
       }
     }
   })
+  
+  
+  Mortalita<-reactive({
+    round(Giorno_Naz()$deceduti/Giorno_Naz()$totale_casi*100,2)
+  })
+  
+  Guarigione<-reactive({
+    round(Giorno_Naz()$dimessi_guariti/Giorno_Naz()$totale_casi*100,2)
+  })
+  
+  output$tassoMortalita <- renderPrint({
+    paste0(Mortalita(),"%")
+  })
+  
+  output$tassoGuarigione <- renderPrint({
+    paste0(Guarigione(),"%")
+  })
+  
+  
   Giorno_Reg<-reactive({
     if(nrow(as.data.frame(d_reg[d_reg$data %like% input$date2,]))!=0){
       filtrata_reg<-as.data.frame(d_reg[d_reg$data %like% input$date2,])
