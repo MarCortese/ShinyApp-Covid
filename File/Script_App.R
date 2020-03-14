@@ -22,7 +22,7 @@ library(rgdal)
 
 #############################################################################################################
 
-#UI
+                                            #UI
 
 #############################################################################################################
 
@@ -54,10 +54,6 @@ sidebar <- dashboardSidebar(
       "</table>",
       "<br>"),
       HTML(paste0(
-        # "<script>",
-        # "var today = new Date();",
-        # "var yyyy = today.getFullYear();",
-        # "</script>",
         "<p style = 'text-align: center;'><small>&copy; - Marco Cortese - <script>document.write(yyyy);</script></small></p>",
         "<br><br><br><br><br><br><br>",
         img(src="https://www.technologyhub.it/public/uploads/sites/7/Healthy-Reply-LOGO-RGB.png",height = "40px",style="display: block; margin-left: auto; margin-right: auto;"),
@@ -120,7 +116,6 @@ frow4<- fluidRow(
 )
 frow5<-fluidRow(
   h4(checkboxInput("checkbox", label = "Tabella", value = FALSE)),
-  #tableOutput("tabella")
   div(style = 'overflow-x: scroll', DT::dataTableOutput('tabella'))
   
 )
@@ -476,8 +471,7 @@ server <- function(input, output,session) {
   
   ###################################################################################################################
   
-#as.data.frame(DT[Denominazione %like% maiuscoloNome()])
-  
+
   output$visuale <- renderPrint({ input$SceltaVisuale })
   
   Giorno_Naz<-reactive({
@@ -563,7 +557,6 @@ server <- function(input, output,session) {
     
   })
   
-  #"f","e","E","g","G", "fg", "s"
   output$dimessi_naz <- renderValueBox({
     valueBox(
       (paste0('Dimessi guariti',"<br/>",formatC(Giorno_Naz()$dimessi_guariti, format="d", big.mark=','),"<br/>")%>%
@@ -600,7 +593,6 @@ server <- function(input, output,session) {
       leaflet(Giorno_Reg()) %>% 
         addTiles()  %>% 
         setView( lat=42, lng=10.5 , zoom=4.5) %>%
-        #addProviderTiles("Esri.WorldImagery") %>%
         addCircleMarkers(~long, ~lat, 
                          fillColor = ~colore , fillOpacity = 1, color="white", radius=~radius, stroke=FALSE,
                          label = mytext,
@@ -641,7 +633,6 @@ server <- function(input, output,session) {
   
   sceltatabella<-reactive({
     if(input$SceltaVisuale=="Regione"){
-      #tab<-as.data.frame(Giorno_Reg()[,c(4,7,8,9,10,11,12,13,14,15)])
       data.frame("Regione"=Giorno_Reg()[,4],"Ricoverati"=Giorno_Reg()[,7],"Terapia Intensiva"=Giorno_Reg()[,8],"Totale Ospedalizzati"=Giorno_Reg()[,9],
                  "Isolamento domiciliare"=Giorno_Reg()[,10],"Attualmente Positivi"=Giorno_Reg()[,11],
                  "Nuovi attualmente Positivi"=Giorno_Reg()[,12],"Dimessi guariti"=Giorno_Reg()[,13],"Deceduti"=Giorno_Reg()[,14],
@@ -650,7 +641,6 @@ server <- function(input, output,session) {
     }else{
       if(input$SceltaVisuale=="Provincia"){
         data.frame("Regione"=Giorno_Prov()[!is.na(Giorno_Prov()[,8]),4],"Provincia"=Giorno_Prov()[!is.na(Giorno_Prov()[,8]),6],"Totale Casi"=Giorno_Prov()[!is.na(Giorno_Prov()[,8]),10])
-        #as.data.frame(Giorno_Prov()[,c(4,6,10)])
       }
     }
   })
@@ -832,15 +822,6 @@ server <- function(input, output,session) {
     verbose=FALSE
   )
   
-  mondo<-read.csv("https://cowid.netlify.com/data/full_data.csv",header=T,sep=",")
-  mondo<-mondo%>%arrange(mondo$date)
-  mondo$date<-as.Date(mondo$date)
-  
-  
-  #link prova dati
-  
-  #https://docs.google.com/spreadsheets/d/1avGWWl1J19O_Zm0NGTGy2E-fOG05i4ljRfjl87P7FiA/htmlview?ts=5e5e9222&sle=true#gid=0
-  #https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/03-13-2020.csv
 
   
   Confermati<-read.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv",header=T,sep=",")
@@ -942,50 +923,6 @@ server <- function(input, output,session) {
   
   
   
-  # for(i in 1:nrow(mondo)){
-  #   if(is.na(mondo$total_cases[i])){
-  #     mondo$total_cases[i]<-"transparent"
-  #   }else{
-  #     if(mondo$total_cases[i]<=10){
-  #       mondo$colore[i]<-"#a4a4f5"
-  #     }
-  #     if(mondo$total_cases[i]>10 && mondo$total_cases[i]<=20 ){
-  #       mondo$colore[i]<-"#8c8cf5"
-  #     }
-  #     if(mondo$total_cases[i]>20 && mondo$total_cases[i]<=50){
-  #       mondo$colore[i]<-"#6e6ef0"
-  #     }
-  #     if(mondo$total_cases[i]>50 && mondo$total_cases[i]<=100){
-  #       mondo$colore[i]<-"#5151f0"
-  #     }
-  #     if(mondo$total_cases[i]>100 && mondo$total_cases[i]<=250){
-  #       mondo$colore[i]<-"#3a3af0"
-  #     }
-  #     if(mondo$total_cases[i]>250 && mondo$total_cases[i]<=500){
-  #       mondo$colore[i]<-"#1a1aed"
-  #     }
-  #     if(mondo$total_cases[i]>500 && mondo$total_cases[i]<=750){
-  #       mondo$colore[i]<-"#0808d1"
-  #     }
-  #     if(mondo$total_cases[i]>750 && mondo$total_cases[i]<=1250){
-  #       mondo$colore[i]<-"#0707ad"
-  #     }
-  #     if(mondo$total_cases[i]>1250 && mondo$total_cases[i]<=2500){
-  #       mondo$colore[i]<-"#070785"
-  #     }
-  #     if(mondo$total_cases[i]>2500 && mondo$total_cases[i]<=3500){
-  #       mondo$colore[i]<-"#050563"
-  #     }
-  #     if(mondo$total_cases[i]>3500 && mondo$total_cases[i]<=4000 ){
-  #       mondo$colore[i]<-"#040447"
-  #     }
-  #     if(mondo$total_cases[i]>4000){
-  #       mondo$colore[i]<-"#000000"
-  #     }
-  #   }
-  #   
-  #   
-  # }
   
   for(i in 1:nrow(Totale)){
     if(is.na(Totale$Confermati[i])){
@@ -1034,9 +971,7 @@ server <- function(input, output,session) {
         Totale$colore[i]<-"#000000"
       }
     }
-    # #03032b
-    # #000024
-    # #000000
+
   }
   
   
@@ -1050,36 +985,6 @@ server <- function(input, output,session) {
   world_spdf@data[["NAME"]][world_spdf@data[["NAME"]]=="Korea, Democratic People's Republic of"]<-"Korea, North"
   
   
-  
-  
-  
-  
-  
-  # world_spdf@data[["NAME"]]<-as.character(world_spdf@data[["NAME"]])
-  # world_spdf@data[["NAME"]][world_spdf@data[["NAME"]]=="Democratic Republic of the Congo"]<-"Democratic Republic of Congo"
-  # world_spdf@data[["NAME"]][world_spdf@data[["NAME"]]=="Faroe Islands"]<-"Faeroe Islands"
-  # world_spdf@data[["NAME"]][world_spdf@data[["NAME"]]=="Brunei Darussalam"]<-"Brunei"
-  # world_spdf@data[["NAME"]][world_spdf@data[["NAME"]]=="Iran (Islamic Republic of)"]<-"Iran"
-  # world_spdf@data[["NAME"]][world_spdf@data[["NAME"]]=="Korea, Republic of"]<-"South Korea"
-  # world_spdf@data[["NAME"]][world_spdf@data[["NAME"]]=="The former Yugoslav Republic of Macedonia"]<-"Macedonia"
-  # world_spdf@data[["NAME"]][world_spdf@data[["NAME"]]=="Saint Barthelemy"]<-"Saint Barthlemy"
-  # world_spdf@data[["NAME"]][world_spdf@data[["NAME"]]=="Saint Martin"]<-"Saint Martin (French part)"
-  # world_spdf@data[["NAME"]][world_spdf@data[["NAME"]]=="Holy See (Vatican City)"]<-"Vatican"
-  # world_spdf@data[["NAME"]][world_spdf@data[["NAME"]]=="Viet Nam"]<-"Vietnam"
-  # world_spdf@data[["NAME"]][world_spdf@data[["NAME"]]=="Korea, Democratic People's Republic of"]<-"North Korea"
-  # world_spdf@data[["NAME"]][world_spdf@data[["NAME"]]=="Republic of Moldova"]<-"Moldova"
-  
-  
-
-  # Giorno_World<-reactive({
-  #   if(nrow(as.data.frame(mondo[mondo$date %like% input$dateworld,]))!=0){
-  #     mondo_fil<-as.data.frame(mondo[mondo$date %like% input$dateworld,])
-  #   }else{
-  #     if(nrow(as.data.frame(mondo[mondo$date %like% input$dateworld,]))==0){
-  #       mondo_fil<-as.data.frame(mondo[mondo$date==max(mondo$date),])
-  #     }
-  #   }
-  # })
   
   Giorno_World<-reactive({
     if(nrow(as.data.frame(Totale[Totale$date %like% input$dateworld,]))!=0){
@@ -1097,35 +1002,6 @@ server <- function(input, output,session) {
   })
   
   
-
- # Mappa_world<-reactive({ for(i in 1:nrow(Giorno_World())){
- #   testo<-paste0("Nazione: ",Giorno_World()$location[i],"<br/>",
- #                 "Casi totali: ",max(na.omit(Giorno_World()$total_cases[i]),0),"<br/>",
- #                 "Nuovi casi: ",max(na.omit(Giorno_World()$new_cases[i]),0),"<br/>",
- #                 "Nuovi decessi: ",max(na.omit(Giorno_World()$new_deaths[i]),0),"<br/>",
- #                 "Decessi totali: ",max(na.omit(Giorno_World()$total_deaths[i]),0),"<br/>") %>%
- #     lapply(htmltools::HTML)
- #    if(Giorno_World()$location[i] %in% world_spdf@data[["NAME"]]){
- #      world_spdf@data[["TotaleCasi"]][world_spdf@data[["NAME"]]==Giorno_World()$location[i]]<-max(na.omit(Giorno_World()$total_cases[i]),0)
- #      world_spdf@data[["NuoviCasi"]][world_spdf@data[["NAME"]]==Giorno_World()$location[i]]<-max(na.omit(Giorno_World()$new_cases[i]),0)
- #      world_spdf@data[["NuoviDecessi"]][world_spdf@data[["NAME"]]==Giorno_World()$location[i]]<-max(na.omit(Giorno_World()$new_deaths[i]),0)
- #      world_spdf@data[["TotaleDecessi"]][world_spdf@data[["NAME"]]==Giorno_World()$location[i]]<-max(na.omit(Giorno_World()$total_deaths[i]),0)
- #      world_spdf@data[["Testo"]][world_spdf@data[["NAME"]]==Giorno_World()$location[i]]<-testo
- #      world_spdf@data[["colore"]][world_spdf@data[["NAME"]]==Giorno_World()$location[i]]<-Giorno_World()$colore[i]
- # }else{
- #   if(!Giorno_World()$location[i] %in% world_spdf@data[["NAME"]]){
- #   testo<-paste0("Nazione: ",world_spdf@data[["NAME"]],"<br/>",
- #                 "Casi totali: 0","<br/>"
- #                 )%>%
- #     lapply(htmltools::HTML)
- #   world_spdf@data[["Testo"]][world_spdf@data[["NAME"]]==Giorno_World()$location[i]]<-testo
- #   }
- # }
- # }
- #   return(world_spdf)
- #  
- #  
- # })
  
  Mappa_world<-reactive({ for(i in 1:nrow(Giorno_World())){
    testo<-paste0("Nazione: ",Giorno_World()$Nazione[i],"<br/>",
@@ -1158,17 +1034,6 @@ server <- function(input, output,session) {
  
 
  
- # grafico_mappa_world<-reactive({
- #   testo<-paste0(Mappa_world()@data$Testo)%>%lapply(htmltools::HTML)
- #     leaflet(Mappa_world()) %>% 
- #       addTiles()  %>% 
- #       setView( lat=10, lng=0 , zoom=2) %>%
- #       addPolygons( fillColor = Mappa_world()@data$colore , fillOpacity = 1, color="white", stroke=FALSE ,label = testo,
- #                    labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
- #       )
- #     
- #  
- # })
  
  grafico_mappa_world<-reactive({
    testo<-paste0(Mappa_world()@data$Testo)%>%lapply(htmltools::HTML)
@@ -1187,13 +1052,6 @@ server <- function(input, output,session) {
  })
  
  
- # dataframe<-reactive({
- #   data.frame("Nazione"=Giorno_World()$location[i],"CasiTotali"=max(na.omit(Giorno_World()$total_cases[i]),0),
- #              "NuoviCasi"=max(na.omit(Giorno_World()$new_cases[i]),0),
- #              "NuoviDecessi"=max(na.omit(Giorno_World()$new_deaths[i]),0),
- #              "DecessiTotali"=max(na.omit(Giorno_World()$total_deaths[i]),0))
- # })
- 
  dataframe<-reactive({
    data.frame("Nazione"=Giorno_World()$Nazione[i],
               "Confermati"=max(na.omit(Giorno_World()$Confermati[i]),0),
@@ -1203,15 +1061,6 @@ server <- function(input, output,session) {
  })
  
   
- # output$tabella_world<- DT::renderDataTable({
- #   DT::datatable(Giorno_World()[,c(1,2,5,3,6,4)], rownames = FALSE, options = list(
- #     columnDefs = list(list(className = 'dt-center')),
- #     pageLength =10,
- #     lengthMenu = c(5, 10, 15, 20)
- #   ))
- #   
- #   
- # })
  output$tabella_world<- DT::renderDataTable({
    DT::datatable(Giorno_World()[,c(2,3,6,4,5)], rownames = FALSE, options = list(
      columnDefs = list(list(className = 'dt-center')),
@@ -1229,124 +1078,4 @@ server <- function(input, output,session) {
 shinyApp(ui, server)
 
 
-
-#POSSIBILI VARIAZIONI
-
-
-
-
-#######################################################################################################################
-
-# FILE MAPPE
-
-######################################################################################################################
-
-#regioni
-
-# mappa_regioni<-"https://raw.githubusercontent.com/openpolis/geojson-italy/master/geojson/limits_IT_regions.geojson" %>%
-#   GET() %>% 
-#   content() %>% 
-#   jsonlite::fromJSON(simplifyVector = FALSE)
-# 
-# #province
-# mappa_province <- "https://raw.githubusercontent.com/openpolis/geojson-italy/master/geojson/limits_IT_provinces.geojson" %>% 
-#   GET() %>% 
-#   content() %>% 
-#   jsonlite::fromJSON(simplifyVector = FALSE)
-
-#######################################################################################################################
-
-
-
-
-
-
-
-# MAPPA CON HIGHCHART
-
-# output$mappa_regione_HIGH <- renderHighchart({
-#   
-#   highchart(type = "map") %>% 
-#     hc_title(text = "Diffusione coronavirus regioni") %>% 
-#     hc_subtitle(text = "Dati: Protezione civile") %>% 
-#     hc_add_series_map(map = mappa_regioni, df = Giorno_Reg(), joinBy = "reg_istat_code_num", 
-#                       value = "totale_attualmente_positivi", name="Casi Coranavirus")%>%
-#     hc_colorAxis(stops = color_stops())%>%
-#     hc_mapNavigation(enabled = TRUE) %>%
-#     hc_tooltip(useHTML = TRUE, headerFormat = "",
-#                pointFormat = '{point.properties.reg_name} casi totali:{point.totale_casi}
-#                           dimessi guariti:{point.dimessi_guariti}
-#                           terapia intesiva:{point.terapia_intensiva}
-#                           ricoverati con sintomi:{point.ricoverati_con_sintomi} 
-#                           totale ospedalizzati:{point.totale_ospedalizzati}
-#                           isolamento domiciliare:{point.isolamento_domiciliare}
-#                           totale attualmente positivi:{point.totale_attualmente_positivi}
-#                           nuovi attualemnte positivi:{point.nuovi_attualmente_positivi}
-#                           deceduti:{point.deceduti}',borderColor = "navy")
-#   
-#   
-#   
-# })
-# 
-# 
-# output$mappa_provincia_HIGH <- renderHighchart({
-#   highchart(type = "map") %>% 
-#     hc_title(text = "Diffusione coronavirus province") %>% 
-#     hc_subtitle(text = "Dati: Protezione civile") %>% 
-#     hc_add_series_map(map = mappa_province, df = Giorno_Prov(), joinBy = "prov_istat_code_num", value = "totale_casi", name="Casi Coranavirus") %>%
-#     hc_colorAxis(stops = color_stops())%>%
-#     hc_mapNavigation(enabled = TRUE) %>%
-#     hc_tooltip(useHTML = TRUE, headerFormat = "",
-#                pointFormat = '{point.properties.prov_name} casi totali:{point.totale_casi}',borderColor = "navy")
-# })
-# 
-# 
-# #MAPPA CON PLOTLY
-# output$mappa_reg_PLOTLY<-renderPlotly({
-#   Giorno_Reg() %>%
-#     plot_ly(
-#       lat = ~lat,
-#       lon = ~long,
-#       marker = list(
-#         color = 'rgb(220,20,60)',
-#         size = 20
-#       ),
-#       type = 'scattermapbox',
-#       mode="markers",
-#       hovertext = paste0(Giorno_Reg()$reg_name,": ",Giorno_Reg()$totale_attualmente_positivi," positivi","\n",
-#                          Giorno_Reg()$dimessi_guariti," dimessi","\n",
-#                          Giorno_Reg()$deceduti," deceduti","\n",
-#                          Giorno_Reg()$ricoverati_con_sintomi," ricoverati","\n",
-#                          Giorno_Reg()$terapia_intensiva," terpaia intensiva","\n",
-#                          Giorno_Reg()$isolamento_domiciliare," isolamento","\n")) %>%
-#     layout(
-#       mapbox = list(
-#         style = 'open-street-map',
-#         zoom =4,
-#         center = list(lon = 10.5, lat = 43))) %>%
-#     layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
-#     layout(paper_bgcolor='rgb(236, 240, 245)') 
-# })
-# 
-# 
-# output$mappa_prov_PLOTLY<-renderPlotly({
-#   Giorno_Prov() %>%
-#     plot_ly(
-#       lat = ~lat,
-#       lon = ~long,
-#       marker = list(
-#         color = 'rgb(220,20,60)',
-#         size = 10
-#       ),
-#       type = 'scattermapbox',
-#       mode="markers",
-#       hovertext = paste0(Giorno_Prov()$denominazione_provincia,": ",Giorno_Prov()$totale_casi," casi")) %>%
-#     layout(
-#       mapbox = list(
-#         style = 'open-street-map',
-#         zoom =4,
-#         center = list(lon = 10.5, lat = 43))) %>%
-#     layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
-#     layout(paper_bgcolor='rgb(236, 240, 245)')
-# })
 
