@@ -1,6 +1,6 @@
 #############################################################################################################
 
-                              #UI
+                                              #UI
 
 #############################################################################################################
 
@@ -18,21 +18,24 @@ sidebar <- dashboardSidebar(
     menuItem("Analisi Territoriale", tabName = "analisi", icon = icon("dashboard")),
     menuItem("Analisi Trend", tabName = "trend", icon = icon("chart-line")),
     menuItem("Informazioni",tabName = "info", icon = icon("question-circle")),
+    menuItem("Nel mondo",tabName = "mondo", icon = icon("map")),
+    
     HTML(paste0(
       "<br><br><br><br><br><br><br><br><br>",
-      "<table style='margin-left:auto; margin-right:auto;'>",
+      "<table align='center'; style='margin-left:auto; margin-right:auto;'>",
       "<tr>",
       "<td style='padding: 5px;'><a href='https://www.facebook.com/marcobrad.patagarrocortese' target='_blank'><i class='fab fa-facebook-square fa-lg'></i></a></td>",
       "<td style='padding: 5px;'><a href='https://www.twitter.com/cortese_mar' target='_blank'><i class='fab fa-twitter fa-lg'></i></a></td>",
       "<td style='padding: 5px;'><a href='https://www.linkedin.com/in/marco-cortese-kr23-mi08' target='_blank'><i class='fab fa-linkedin fa-lg'></i></a></td>",
+      "<td style='padding: 5px;'><a href='https://github.com/MarCortese' target='_blank'><i class='fab fa-github fa-lg'></i></a></td>",
       "</tr>",
       "</table>",
       "<br>"),
       HTML(paste0(
-        "<script>",
-        "var today = new Date();",
-        "var yyyy = today.getFullYear();",
-        "</script>",
+        # "<script>",
+        # "var today = new Date();",
+        # "var yyyy = today.getFullYear();",
+        # "</script>",
         "<p style = 'text-align: center;'><small>&copy; - Marco Cortese - <script>document.write(yyyy);</script></small></p>",
         "<br><br><br><br><br><br><br>",
         img(src="https://www.technologyhub.it/public/uploads/sites/7/Healthy-Reply-LOGO-RGB.png",height = "40px",style="display: block; margin-left: auto; margin-right: auto;"),
@@ -58,7 +61,7 @@ frow2<- fluidRow(
          radioButtons("SceltaVisuale", label = h3(""),
                       choices = list("Regione" = "Regione", "Provincia" = "Provincia"), 
                       selected = "Regione", inline=T),
-         
+         hr(),
          dateInput('date2',
                    label = '',
                    value = as.character(Sys.Date()),
@@ -69,6 +72,7 @@ frow2<- fluidRow(
   column(4,
          hr(),
          hr(),
+         hr(),
          tableOutput("giornoAnalisi")
   )
   
@@ -76,7 +80,7 @@ frow2<- fluidRow(
 )
 
 frow3 <- fluidRow(
-  leafletOutput("mappa",height =500),
+  leafletOutput("mappa",height =700),
   hr(),
   hr()
 )
@@ -146,17 +150,46 @@ frow10<- fluidRow(
 )
 
 frow11<-fluidRow(
-  h2("Ordinaze emanate:",align="center"),
+  h2("Ordinanze emanate:",align="center"),
   h3(("Per seguire le ordinaze emanate dal governo i visita il seguente link:")),
   h3(helpText(   a("Ordinanze",     href="http://www.governo.it/it/approfondimento/coronavirus-la-normativa/14252"))),
   h3(("Per seguire le ordinaze emanate dalle regioni visita il seguente link:")),
   h3(helpText(   a("Ordinanze",     href="http://www.regioni.it/newsletter/n-3785/del-25-02-2020/coronavirus-ordinanze-ultime-circolari-regionali-e-note-esplicative-20851/"))),
 )
 
+frow12<-fluidPage(
+  
+  h3("Per le analisi mondiali i dati sono stati reperiti al seguente link:" ,align="center"),
+  h3(helpText(   a("Dati",     href="https://github.com/CSSEGISandData/COVID-19")),align="center"),
+  hr(),
+  h3("Per ciò che concerne l'Italia potremmo quindi trovare delle differenze con i dati presenti nella prima pagina.",align="center"),
+  hr(),
+  hr(),
+  column(4,
+         dateInput('dateworld',
+                   label = '',
+                   value = as.character(Sys.Date()),
+                   min = "2020-01-21", max = Sys.Date(),
+                   startview = 'month', language = 'it', weekstart = 1)
+  ),
+  column(4),
+  column(4,
+         tableOutput("giornoAnalisi_world")
+  ),
+  leafletOutput("mappa_world",height =700),
+  
+  div(style = 'overflow-x: scroll', DT::dataTableOutput('tabella_world'))
+  
+  
+  
+)
+
 
 # combine the two fluid rows to make the body
-body <- dashboardBody(tabItems(tabItem(tabName = "analisi",frow1, frow2, frow3,frow4,frow5),tabItem(tabName = "trend",frow6,frow7),tabItem(tabName = "info",frow8,frow9,frow10,frow11)))
+body <- dashboardBody(tabItems(tabItem(tabName = "analisi",frow1, frow2, frow3,frow4,frow5),
+                               tabItem(tabName = "trend",frow6,frow7),
+                               tabItem(tabName = "info",frow8,frow9,frow10,frow11),
+                               tabItem(tabName = "mondo",frow12)))
 
 #completing the ui part with dashboardPage
 ui <- dashboardPage(title = 'Analisi Covid-19 Italia', header, sidebar, body, skin='black')
-
