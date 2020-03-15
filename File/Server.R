@@ -512,6 +512,8 @@ server <- function(input, output,session) {
   
   fig <-fig %>% layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
     layout(paper_bgcolor='rgb(236, 240, 245)')
+  fig <- fig %>% layout(legend = list(x = 0, y = 0.9))
+
   
   output$serie<-renderPlotly({
     fig
@@ -556,7 +558,8 @@ server <- function(input, output,session) {
   
   fig2 <-fig2 %>% layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
     layout(paper_bgcolor='rgb(236, 240, 245)')
-  
+  fig2 <- fig2 %>% layout(legend = list(x = 0.7, y = 0.9))
+
   output$serieVariazioni<-renderPlotly({
     fig2
   })
