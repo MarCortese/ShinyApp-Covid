@@ -411,7 +411,7 @@ server <- function(input, output,session) {
           "Attualmente positivi: ", Giorno_Prov()$totale_casi, "<br/>" ) %>%
           lapply(htmltools::HTML)
         
-        leaflet(Giorno_Prov()[!is.na(Giorno_Prov()[,8]),]) %>% 
+        leaflet(Giorno_Prov()) %>% #[!is.na(Giorno_Prov()[,8]),]) %>% 
           addTiles()  %>% 
           setView( lat=42, lng=10.5 , zoom=4.5) %>%
           addCircleMarkers(~long, ~lat, 
