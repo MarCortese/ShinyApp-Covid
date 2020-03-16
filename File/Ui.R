@@ -1,6 +1,10 @@
+regioni<-read.csv("CoordinateRegioni.csv",sep=";",header=T,stringsAsFactors = F)
+province<-read.csv("Coordinate.csv",sep=";",header=T,stringsAsFactors = F)
+
+
 #############################################################################################################
 
-                                              #UI
+#UI
 
 #############################################################################################################
 
@@ -32,10 +36,6 @@ sidebar <- dashboardSidebar(
       "</table>",
       "<br>"),
       HTML(paste0(
-        # "<script>",
-        # "var today = new Date();",
-        # "var yyyy = today.getFullYear();",
-        # "</script>",
         "<p style = 'text-align: center;'><small>&copy; - Marco Cortese - <script>document.write(yyyy);</script></small></p>",
         "<br><br><br><br><br><br><br>",
         img(src="https://www.technologyhub.it/public/uploads/sites/7/Healthy-Reply-LOGO-RGB.png",height = "40px",style="display: block; margin-left: auto; margin-right: auto;"),
@@ -71,7 +71,7 @@ frow2<- fluidRow(
   column(4,
          tags$style(type='text/css', '#tassoMortalita {background-color: rgb(236, 240, 245); borders-color:rgb(236, 240, 245); color: navy;}'),
          tags$style(type='text/css', '#tassoGuarigione {background-color: rgb(236, 240, 245); borders-color:rgb(236, 240, 245); color: navy;}'),
-         h5("Tasso di mortalità",align="center"),
+         h5("Tasso di mortalit?",align="center"),
          h5(verbatimTextOutput("tassoMortalita"),align="center"),
          h5("Tasso di guarigione",align="center"),
          h5(verbatimTextOutput("tassoGuarigione"),align="center"),
@@ -105,7 +105,6 @@ frow4<- fluidRow(
 )
 frow5<-fluidRow(
   h4(checkboxInput("checkbox", label = "Tabella", value = FALSE)),
-  #tableOutput("tabella")
   div(style = 'overflow-x: scroll', DT::dataTableOutput('tabella'))
   
 )
@@ -117,23 +116,38 @@ frow6 <- fluidRow(
 frow7 <- fluidRow(
   plotlyOutput("serieVariazioni",height =500)
 )
-
-
 frow8<- fluidRow(
+  
+  selectizeInput(
+    'regione', 'Seleziona la regione', choices = regioni$Regioni,
+    options = list(
+      placeholder = '',
+      onInitialize = I('function() { this.setValue(""); }')
+    )
+  )
+)
+frow9<- fluidRow(
+  plotlyOutput("serieReg",height =500),
+  plotlyOutput("serieProv",height =500)
+  
+)
+
+
+frow10<- fluidRow(
   tags$iframe(width="560", height="315", src="https://www.youtube.com/embed/1PWfsNs0bDw", frameborder="0", allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture", allowfullscreen=NA,style="display: block; margin-left: auto; margin-right: auto;"),
   hr(),
   hr()
 )
 
-frow9 <- fluidRow(
+frow11 <- fluidRow(
   h2("I dati analizzati provengono direttamente dalla Protezione Civile Italiana.",align="center"),
   tags$img(src="https://pngimage.net/wp-content/uploads/2018/06/logo-protezione-civile-png-2.png",width="200",style="display: block; margin-left: auto; margin-right: auto;")
 )
 
-frow10<- fluidRow(
+frow12<- fluidRow(
   h2("In questo momento di grande scompiglio vi vinvitiamo a prestare la massima attenzione alle misure si sicurezza e prevenzione. Diffidate da alcune informazioni che circolano sui social e nel web. ",align="justify"),
   hr(),
-  h3("Ogni sera alle 18:00 sarà possibile seguire in diretta le parole del Primo Ministro Giuseppe Conte o della Protezione civile presso i canali youtube.",align="justify"),
+  h3("Ogni sera alle 18:00 sar? possibile seguire in diretta le parole del Primo Ministro Giuseppe Conte o della Protezione civile presso i canali youtube.",align="justify"),
   HTML(paste0(
     "<br>",
     "<table style='margin-left:auto; margin-right:auto;'>",
@@ -143,11 +157,11 @@ frow10<- fluidRow(
     "</tr>",
     "</table>",
     "<br>")),
-  h2("Voci più autorevoli:", align="center"),
+  h2("Voci pi? autorevoli:", align="center"),
   h3(helpText(   a("Protezione Civile",     href="http://www.protezionecivile.gov.it/home"))),
   h3(helpText(   a("Il Governo",     href="http://www.governo.it/it/il-governo"))),
   h3(helpText(   a("Ministero della salute",     href="http://www.salute.gov.it/portale/rapportiInternazionali/menuContenutoRapportiInternazionali.jsp?lingua=italiano&area=rapporti&menu=mondiale"))),
-  h3(helpText(   a("Organizzazione Mondiale della Sanità",     href="http://www.euro.who.int/en/home"))),
+  h3(helpText(   a("Organizzazione Mondiale della Sanit?",     href="http://www.euro.who.int/en/home"))),
   h3(helpText(   a("Rai News",     href="https://www.rainews.it/"))),
   h3(helpText(   a("Sky tg 24",     href="https://tg24.sky.it/"))),
   h3(helpText(   a("Ospedale Sacco Milano",     href="https://www.asst-fbf-sacco.it/news"))),
@@ -156,7 +170,7 @@ frow10<- fluidRow(
   hr()
 )
 
-frow11<-fluidRow(
+frow13<-fluidRow(
   h2("Ordinanze emanate:",align="center"),
   h3(("Per seguire le ordinaze emanate dal governo i visita il seguente link:")),
   h3(helpText(   a("Ordinanze",     href="http://www.governo.it/it/approfondimento/coronavirus-la-normativa/14252"))),
@@ -164,12 +178,12 @@ frow11<-fluidRow(
   h3(helpText(   a("Ordinanze",     href="http://www.regioni.it/newsletter/n-3785/del-25-02-2020/coronavirus-ordinanze-ultime-circolari-regionali-e-note-esplicative-20851/"))),
 )
 
-frow12<-fluidPage(
+frow14<-fluidPage(
   
   h3("Per le analisi mondiali i dati sono stati reperiti al seguente link:" ,align="center"),
   h3(helpText(   a("Dati",     href="https://github.com/CSSEGISandData/COVID-19")),align="center"),
   hr(),
-  h3("Per ciò che concerne l'Italia potremmo quindi trovare delle differenze con i dati presenti nella prima pagina.",align="center"),
+  h3("Per ci? che concerne l'Italia potremmo quindi trovare delle differenze con i dati presenti nella prima pagina.",align="center"),
   hr(),
   hr(),
   column(4,
@@ -194,9 +208,9 @@ frow12<-fluidPage(
 
 # combine the two fluid rows to make the body
 body <- dashboardBody(tabItems(tabItem(tabName = "analisi",frow1, frow2, frow3,frow4,frow5),
-                               tabItem(tabName = "trend",frow6,frow7),
-                               tabItem(tabName = "info",frow8,frow9,frow10,frow11),
-                               tabItem(tabName = "mondo",frow12)))
+                               tabItem(tabName = "trend",frow6,frow7,frow8,frow9),
+                               tabItem(tabName = "info",frow10,frow11,frow12,frow13),
+                               tabItem(tabName = "mondo",frow14)))
 
 #completing the ui part with dashboardPage
 ui <- dashboardPage(title = 'Analisi Covid-19 Italia', header, sidebar, body, skin='black')

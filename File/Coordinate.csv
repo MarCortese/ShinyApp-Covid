@@ -30,9 +30,9 @@ Crotone;KR;39.05 N;17.08 E
 Cuneo;CN;44.24 N;07.33 E
 Enna;EN;37.34 N;14.16 E
 Ferrara;FE;44.50 N;11.38 E
-Firenza;FI;43.46 N;11.15 E
+Firenze;FI;43.46 N;11.15 E
 Foggia;FG;41.28 N;15.33 E
-Forlì;FO;44.13 N;12.03 E
+Forlì-Cesena;FO;44.13 N;12.03 E
 Frosinone;FR;41.38 N;13.22 E
 Genova;GE;44.25 N;08.55 E
 Gorizia;GO;45.57 N;13.38 E
@@ -49,10 +49,10 @@ Lodi;LO;45.19 N;09.30 E
 Lucca;LU;43.51 N;10.31 E
 Macerata;MC;43.18 N;13.27 E
 Mantova;MN;45.09 N;10.47 E
-Massa;MS;44.20 N;10.05 E
+Massa Carrara;MS;44.20 N;10.05 E
 Matera;MT;40.41 N;16.36 E
 Messina;ME;38.11 N;15.34 E
-MIlano;MI;45.28 N;09.11 E
+Milano;MI;45.28 N;09.11 E
 Modena;MO;44.39 N;10.55 E
 Napoli;NA;40.21 N;14.15 E
 Novara;NO;45.27 N;08.38 E
@@ -63,7 +63,7 @@ Palermo;PA;38.07 N;13.21 E
 Parma;PR;44.48 N;10.21 E
 Pavia;PV;45.11 N;09.10 E
 Perugia;PG;43.07 N;12.24 E
-Pesaro;PS;43.54 N;12.55 E
+Pesaro e Urbino;PS;43.54 N;12.55 E
 Pescara;PE;42.27 N;14.13 E
 Piacenza;PC;45.03 N;09.41 E
 Pisa;PI;43.43 N;10.24 E
@@ -73,8 +73,8 @@ Potenza;PZ;40.38 N;15.49 E
 Prato;PO;43.53 N;-11.06 E
 Ragusa;RG;36.56 N;-14.44 E
 Ravenna;RA;44.25 N;12.12 E
-Reggio Calabria;RC;38.06 N;15.39 E
-Reggio Emilia;RE;44.42 N;10.38 E
+Reggio di Calabria;RC;38.06 N;15.39 E
+Reggio nell'Emilia;RE;44.42 N;10.38 E
 Rieti;RI;42.22 N;12.52 E
 Rimini;RN;44.04 N;12.34 E
 Roma;Roma;41.54 N;12.29 E
@@ -96,9 +96,13 @@ Trieste;TS;45.39 N;13.46 E
 Udine;UD;46.04 N;13.14 E
 Varese;VA;45.50 N;08.49 E
 Venezia;VE;45.26 N;12.21 E
-Verbania;VB;45.56 N;08.33 E
+Verbano-Cusio-Ossola;VB;45.56 N;08.33 E
 Vercelli;VC;45.20 N;08.25 E
 Verona;VR;45.27 N;11.00 E
 Vibo Valentia;VV;38.40 N;16.06 E
 Vicenza;VI;45.33 N;11.33 E
 Viterbo;VT;42.33 N;12.07 E
+Monza e della Brianza;MB;1;1
+Fermo;FE;1;1
+Barletta-Andria-Trani;BAT;1;1
+Sud Sardegna;SUD;1;1

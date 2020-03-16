@@ -185,6 +185,80 @@ server <- function(input, output,session) {
   d_prov$lat[which(d_prov$denominazione_provincia=="In fase di definizione/aggiornamento")]<-NA
   d_prov$long[which(d_prov$denominazione_provincia=="In fase di definizione/aggiornamento")]<-NA
   
+  Reg <- data.table(d_reg)
+  Prov <- data.table(d_prov)
+  
+  RegioneSerie<-reactive({
+    as.data.frame(Reg[reg_name %like% input$regione])
+  })
+  
+  ProvinciaSerie<-reactive({
+    as.data.frame(Prov[denominazione_regione %like% input$regione])
+  })
+  
+  
+  
+  SerieReg<-reactive({
+    if(input$regione!=""){
+      plot_ly(RegioneSerie(), x = RegioneSerie()$data)%>% add_lines(y = RegioneSerie()$totale_casi, name = "Totale Casi", line = list(shape = "spline"))%>% 
+        add_lines(y = RegioneSerie()$dimessi_guariti, name = "Guariti", line = list(shape = "spline"))%>% 
+        add_lines(y = RegioneSerie()$deceduti, name = "Deceduti", line = list(shape = "spline")) %>%
+        add_lines(y = RegioneSerie()$totale_attualmente_positivi, name = "Attualmente positivi", line = list(shape = "spline"))%>% 
+        layout(
+          title = paste0("Andamento ",unique(RegioneSerie()$reg_name)),
+          xaxis = list(
+            rangeselector = list(
+              buttons = list(
+                list(
+                  count = 3,
+                  label = "3 days",
+                  step = "day",
+                  stepmode = "backward"),
+                list(
+                  count = 6,
+                  label = "6 days",
+                  step = "day",
+                  stepmode = "backward"),
+                list(
+                  count = 10,
+                  label = "10 days",
+                  step = "day",
+                  stepmode = "backward"),
+                list(
+                  count = 1,
+                  label = "month",
+                  step = "month",
+                  stepmode = "todate"),
+                list(step = "all"))),
+            rangeslider = list(type = "Data")),
+          yaxis = list(title = "Numero Persone"))%>% 
+        layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
+        layout(paper_bgcolor='rgb(236, 240, 245)')%>% 
+        layout(legend = list(x = 0, y = 0.9))
+    }
+    
+  })
+  
+  
+  
+  SerieProv<-reactive({
+    if(input$regione!=""){
+      fig <- ProvinciaSerie()
+      fig <- fig %>% plot_ly(x = as.Date(ProvinciaSerie()$data), y = ~totale_casi, color = ~denominazione_provincia,type="bar")%>%
+        layout(legend = list(x = 0, y = 0.9)) %>%
+        layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
+        layout(paper_bgcolor='rgb(236, 240, 245)') 
+    }
+    
+  })
+  
+  output$serieReg<-renderPlotly({
+    SerieReg()
+  })
+  
+  output$serieProv<-renderPlotly({
+    SerieProv()
+  })
   
   
   for(i in 1:nrow(d_prov)){
@@ -411,7 +485,7 @@ server <- function(input, output,session) {
           "Attualmente positivi: ", Giorno_Prov()$totale_casi, "<br/>" ) %>%
           lapply(htmltools::HTML)
         
-        leaflet(Giorno_Prov()) %>% #[!is.na(Giorno_Prov()[,8]),]) %>% 
+        leaflet(Giorno_Prov()[!is.na(Giorno_Prov()[,8]),]) %>% 
           addTiles()  %>% 
           setView( lat=42, lng=10.5 , zoom=4.5) %>%
           addCircleMarkers(~long, ~lat, 
@@ -512,8 +586,6 @@ server <- function(input, output,session) {
   
   fig <-fig %>% layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
     layout(paper_bgcolor='rgb(236, 240, 245)')
-  fig <- fig %>% layout(legend = list(x = 0, y = 0.9))
-
   
   output$serie<-renderPlotly({
     fig
@@ -558,8 +630,7 @@ server <- function(input, output,session) {
   
   fig2 <-fig2 %>% layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
     layout(paper_bgcolor='rgb(236, 240, 245)')
-  fig2 <- fig2 %>% layout(legend = list(x = 0.7, y = 0.9))
-
+  
   output$serieVariazioni<-renderPlotly({
     fig2
   })

@@ -15,9 +15,12 @@ library(xts)
 library(data.table)
 library(rgdal)
 
+#setwd("C:/Users/m.cortese/Desktop/Progetti/Corona")
 #############################################################################################################
+#file fissi
 
-
+regioni<-read.csv("CoordinateRegioni.csv",sep=";",header=T,stringsAsFactors = F)
+province<-read.csv("Coordinate.csv",sep=";",header=T,stringsAsFactors = F)
 
 
 #############################################################################################################
@@ -134,20 +137,37 @@ frow6 <- fluidRow(
 frow7 <- fluidRow(
   plotlyOutput("serieVariazioni",height =500)
 )
-
-
 frow8<- fluidRow(
+
+  selectizeInput(
+    'regione', 'Seleziona la regione', choices = regioni$Regioni,
+    options = list(
+      placeholder = '',
+      onInitialize = I('function() { this.setValue(""); }')
+    )
+  )
+
+  
+)
+frow9<- fluidRow(
+  plotlyOutput("serieReg",height =500),
+  plotlyOutput("serieProv",height =500)
+  
+)
+
+
+frow10<- fluidRow(
   tags$iframe(width="560", height="315", src="https://www.youtube.com/embed/1PWfsNs0bDw", frameborder="0", allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture", allowfullscreen=NA,style="display: block; margin-left: auto; margin-right: auto;"),
   hr(),
   hr()
 )
 
-frow9 <- fluidRow(
+frow11 <- fluidRow(
   h2("I dati analizzati provengono direttamente dalla Protezione Civile Italiana.",align="center"),
   tags$img(src="https://pngimage.net/wp-content/uploads/2018/06/logo-protezione-civile-png-2.png",width="200",style="display: block; margin-left: auto; margin-right: auto;")
 )
 
-frow10<- fluidRow(
+frow12<- fluidRow(
   h2("In questo momento di grande scompiglio vi vinvitiamo a prestare la massima attenzione alle misure si sicurezza e prevenzione. Diffidate da alcune informazioni che circolano sui social e nel web. ",align="justify"),
   hr(),
   h3("Ogni sera alle 18:00 sarà possibile seguire in diretta le parole del Primo Ministro Giuseppe Conte o della Protezione civile presso i canali youtube.",align="justify"),
@@ -173,7 +193,7 @@ frow10<- fluidRow(
   hr()
 )
 
-frow11<-fluidRow(
+frow13<-fluidRow(
   h2("Ordinanze emanate:",align="center"),
   h3(("Per seguire le ordinaze emanate dal governo i visita il seguente link:")),
   h3(helpText(   a("Ordinanze",     href="http://www.governo.it/it/approfondimento/coronavirus-la-normativa/14252"))),
@@ -181,7 +201,7 @@ frow11<-fluidRow(
   h3(helpText(   a("Ordinanze",     href="http://www.regioni.it/newsletter/n-3785/del-25-02-2020/coronavirus-ordinanze-ultime-circolari-regionali-e-note-esplicative-20851/"))),
 )
 
-frow12<-fluidPage(
+frow14<-fluidPage(
   
   h3("Per le analisi mondiali i dati sono stati reperiti al seguente link:" ,align="center"),
   h3(helpText(   a("Dati",     href="https://github.com/CSSEGISandData/COVID-19")),align="center"),
@@ -211,9 +231,9 @@ frow12<-fluidPage(
 
 # combine the two fluid rows to make the body
 body <- dashboardBody(tabItems(tabItem(tabName = "analisi",frow1, frow2, frow3,frow4,frow5),
-                               tabItem(tabName = "trend",frow6,frow7),
-                               tabItem(tabName = "info",frow8,frow9,frow10,frow11),
-                               tabItem(tabName = "mondo",frow12)))
+                               tabItem(tabName = "trend",frow6,frow7,frow8,frow9),
+                               tabItem(tabName = "info",frow10,frow11,frow12,frow13),
+                               tabItem(tabName = "mondo",frow14)))
 
 #completing the ui part with dashboardPage
 ui <- dashboardPage(title = 'Analisi Covid-19 Italia', header, sidebar, body, skin='black')
@@ -232,6 +252,9 @@ server <- function(input, output,session) {
   output$dateText2 <- renderText({
     paste("input$date2 is", as.character(input$date2))
   })
+  output$regioneOut <- renderPrint({ input$regione })
+  output$provinciaOut <- renderPrint({ input$provincia })
+  
   
   #################################################################################################################
   
@@ -407,7 +430,84 @@ server <- function(input, output,session) {
   d_prov$lat[which(d_prov$denominazione_provincia=="In fase di definizione/aggiornamento")]<-NA
   d_prov$long[which(d_prov$denominazione_provincia=="In fase di definizione/aggiornamento")]<-NA
 
+
   
+  Reg <- data.table(d_reg)
+  Prov <- data.table(d_prov)
+  
+  RegioneSerie<-reactive({
+        as.data.frame(Reg[reg_name %like% input$regione])
+  })
+  
+  ProvinciaSerie<-reactive({
+    as.data.frame(Prov[denominazione_regione %like% input$regione])
+  })
+  
+  
+  
+  SerieReg<-reactive({
+        if(input$regione!=""){
+        plot_ly(RegioneSerie(), x = RegioneSerie()$data)%>% add_lines(y = RegioneSerie()$totale_casi, name = "Totale Casi", line = list(shape = "spline"))%>% 
+          add_lines(y = RegioneSerie()$dimessi_guariti, name = "Guariti", line = list(shape = "spline"))%>% 
+          add_lines(y = RegioneSerie()$deceduti, name = "Deceduti", line = list(shape = "spline")) %>%
+          add_lines(y = RegioneSerie()$totale_attualmente_positivi, name = "Attualmente positivi", line = list(shape = "spline"))%>% 
+          layout(
+            title = paste0("Andamento ",unique(RegioneSerie()$reg_name)),
+            xaxis = list(
+              rangeselector = list(
+                buttons = list(
+                  list(
+                    count = 3,
+                    label = "3 days",
+                    step = "day",
+                    stepmode = "backward"),
+                  list(
+                    count = 6,
+                    label = "6 days",
+                    step = "day",
+                    stepmode = "backward"),
+                  list(
+                    count = 10,
+                    label = "10 days",
+                    step = "day",
+                    stepmode = "backward"),
+                  list(
+                    count = 1,
+                    label = "month",
+                    step = "month",
+                    stepmode = "todate"),
+                  list(step = "all"))),
+              rangeslider = list(type = "Data")),
+            yaxis = list(title = "Numero Persone"))%>% 
+          layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
+          layout(paper_bgcolor='rgb(236, 240, 245)')%>% 
+          layout(legend = list(x = 0, y = 0.9))
+        }
+
+  })
+  
+  
+
+  SerieProv<-reactive({
+    if(input$regione!=""){
+      fig <- ProvinciaSerie()
+      fig <- fig %>% plot_ly(x = as.Date(ProvinciaSerie()$data), y = ~totale_casi, color = ~denominazione_provincia,type="bar")%>%
+        layout(legend = list(x = 0, y = 0.9)) %>%
+        layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
+        layout(paper_bgcolor='rgb(236, 240, 245)') 
+    }
+    
+  })
+  
+  output$serieReg<-renderPlotly({
+    SerieReg()
+  })
+  
+  output$serieProv<-renderPlotly({
+    SerieProv()
+  })
+  
+
   
   for(i in 1:nrow(d_prov)){
     if(is.na(d_prov$totale_casi[i])){
@@ -634,7 +734,7 @@ server <- function(input, output,session) {
           "Attualmente positivi: ", Giorno_Prov()$totale_casi, "<br/>" ) %>%
           lapply(htmltools::HTML)
         
-        leaflet(Giorno_Prov() )%>% #[!is.na(Giorno_Prov()[,8]),]) %>% 
+        leaflet(Giorno_Prov()) %>%#[!is.na(Giorno_Prov()[,8]),]) %>% 
           addTiles()  %>% 
           setView( lat=42, lng=10.5 , zoom=4.5) %>%
           addCircleMarkers(~long, ~lat, 
@@ -734,7 +834,7 @@ server <- function(input, output,session) {
   fig <-fig %>% layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
     layout(paper_bgcolor='rgb(236, 240, 245)')
   fig <- fig %>% layout(legend = list(x = 0, y = 0.9))
-
+  
   output$serie<-renderPlotly({
     fig
   })
@@ -779,7 +879,8 @@ server <- function(input, output,session) {
   fig2 <-fig2 %>% layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
     layout(paper_bgcolor='rgb(236, 240, 245)')
   fig2 <- fig2 %>% layout(legend = list(x = 0.7, y = 0.9))
-
+  
+  
   output$serieVariazioni<-renderPlotly({
     fig2
   })
