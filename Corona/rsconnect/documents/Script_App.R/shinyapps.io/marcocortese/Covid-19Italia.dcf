@@ -1,0 +1,13 @@
+name: Covid-19Italia
+title: Covid-19Italia
+username:
+account: marcocortese
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1934377
+bundleId: 2895226
+url: https://marcocortese.shinyapps.io/Covid-19Italia/
+when: 1584557852.82579
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|COVID-19-geographic-disbtribution-worldwide-2020-03-12 (1).xls|COVID-19-geographic-disbtribution-worldwide-2020-03-12.xls|full_data (1).csv|full_data (2).csv|full_data.csv|life-expectancy.csv|novel-corona-virus-2019-dataset.zip|PossibiliVariazioni.R|Readme.txt|Script_Analisi.R|Server.R|StoriaCina.xlsx|total_cases.csv|Ui.R|world_shape_file.zip|Infografiche/Infografica_14marzo ITA.pdf|File|novel-corona-virus-2019-dataset
