@@ -1,5 +1,19 @@
-regioni<-read.csv("CoordinateRegioni.csv",sep=";",header=T,stringsAsFactors = F)
-province<-read.csv("Coordinate.csv",sep=";",header=T,stringsAsFactors = F)
+library(shiny)
+library(shinydashboard)
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+library(highcharter)
+library(rjson)
+library(httr)
+library(plotly)
+library(quantmod)
+library(tidyr)
+library(leaflet)
+library(xts)
+library(data.table)
+library(rgdal)
+
 
 
 #############################################################################################################
@@ -71,7 +85,7 @@ frow2<- fluidRow(
   column(4,
          tags$style(type='text/css', '#tassoMortalita {background-color: rgb(236, 240, 245); borders-color:rgb(236, 240, 245); color: navy;}'),
          tags$style(type='text/css', '#tassoGuarigione {background-color: rgb(236, 240, 245); borders-color:rgb(236, 240, 245); color: navy;}'),
-         h5("Tasso di mortalit?",align="center"),
+         h5("Tasso di mortalità",align="center"),
          h5(verbatimTextOutput("tassoMortalita"),align="center"),
          h5("Tasso di guarigione",align="center"),
          h5(verbatimTextOutput("tassoGuarigione"),align="center"),
@@ -114,7 +128,11 @@ frow6 <- fluidRow(
 )
 
 frow7 <- fluidRow(
-  plotlyOutput("serieVariazioni",height =500)
+  radioButtons("variabile", label = h3("Scegli variabile"),
+               choices = list("Positivi" = "pos", "Guariti" = "gu", "Decessi" = "dec","Contagi"="con"), 
+               selected = "pos"),
+  plotlyOutput("VariabiliPlot",height =500)
+  #plotlyOutput("serieVariazioni",height =500)
 )
 frow8<- fluidRow(
   
@@ -125,10 +143,13 @@ frow8<- fluidRow(
       onInitialize = I('function() { this.setValue(""); }')
     )
   )
+  
+  
 )
 frow9<- fluidRow(
   plotlyOutput("serieReg",height =500),
-  plotlyOutput("serieProv",height =500)
+  plotlyOutput("serieProv",height =500),
+  h5(verbatimTextOutput("messaggio"),align="center")
   
 )
 
@@ -145,9 +166,9 @@ frow11 <- fluidRow(
 )
 
 frow12<- fluidRow(
-  h2("In questo momento di grande scompiglio vi vinvitiamo a prestare la massima attenzione alle misure si sicurezza e prevenzione. Diffidate da alcune informazioni che circolano sui social e nel web. ",align="justify"),
+  h2("In questo momento di grande scompiglio vi invitiamo a prestare la massima attenzione alle misure si sicurezza e prevenzione. Diffidate da alcune informazioni che circolano sui social e nel web. ",align="justify"),
   hr(),
-  h3("Ogni sera alle 18:00 sar? possibile seguire in diretta le parole del Primo Ministro Giuseppe Conte o della Protezione civile presso i canali youtube.",align="justify"),
+  h3("Ogni sera alle 18:00 sarà possibile seguire in diretta le parole del Primo Ministro Giuseppe Conte o della Protezione civile presso i canali youtube.",align="justify"),
   HTML(paste0(
     "<br>",
     "<table style='margin-left:auto; margin-right:auto;'>",
@@ -157,16 +178,16 @@ frow12<- fluidRow(
     "</tr>",
     "</table>",
     "<br>")),
-  h2("Voci pi? autorevoli:", align="center"),
+  h2("Voci più autorevoli:", align="center"),
   h3(helpText(   a("Protezione Civile",     href="http://www.protezionecivile.gov.it/home"))),
   h3(helpText(   a("Il Governo",     href="http://www.governo.it/it/il-governo"))),
   h3(helpText(   a("Ministero della salute",     href="http://www.salute.gov.it/portale/rapportiInternazionali/menuContenutoRapportiInternazionali.jsp?lingua=italiano&area=rapporti&menu=mondiale"))),
-  h3(helpText(   a("Organizzazione Mondiale della Sanit?",     href="http://www.euro.who.int/en/home"))),
+  h3(helpText(   a("Organizzazione Mondiale della Sanità",     href="http://www.euro.who.int/en/home"))),
   h3(helpText(   a("Rai News",     href="https://www.rainews.it/"))),
   h3(helpText(   a("Sky tg 24",     href="https://tg24.sky.it/"))),
   h3(helpText(   a("Ospedale Sacco Milano",     href="https://www.asst-fbf-sacco.it/news"))),
-  h3(helpText(   a("Dario Bressanini",     href="https://www.instagram.com/dario.bressanini/"))),
   h3(helpText(   a("Roberta Villa",     href="https://www.instagram.com/robivil/?hl=it"))),
+  h3(helpText(   a("Dario Bressanini",     href="https://www.instagram.com/dario.bressanini/"))),
   hr()
 )
 
@@ -183,7 +204,7 @@ frow14<-fluidPage(
   h3("Per le analisi mondiali i dati sono stati reperiti al seguente link:" ,align="center"),
   h3(helpText(   a("Dati",     href="https://github.com/CSSEGISandData/COVID-19")),align="center"),
   hr(),
-  h3("Per ci? che concerne l'Italia potremmo quindi trovare delle differenze con i dati presenti nella prima pagina.",align="center"),
+  h3("Per ciò che concerne l'Italia potremmo quindi trovare delle differenze con i dati presenti nella prima pagina.",align="center"),
   hr(),
   hr(),
   column(4,
