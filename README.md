@@ -100,3 +100,13 @@ App deployata su un account free perciò limitata nel tempo e se ancora disponib
 
 https://marcocortese.shinyapps.io/Covid-19Italia/
 
+
+
+Se il lavoro è di vostro gradimento lasciate una stella sul repository ed eventualmente citate questo progetto.
+
+@misc{Covid-19,
+  author =       {Marco Cortese},
+  title =        {Covid-19 Italia},
+  howpublished = {\url{https://github.com/MarCortese/Covid-19}},
+  year =         {2020}
+}
