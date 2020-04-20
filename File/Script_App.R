@@ -1,6 +1,6 @@
 # load the required packages
 library(shiny)
-require(shinydashboard)
+library(shinydashboard)
 library(ggplot2)
 library(dplyr)
 library(RColorBrewer)
@@ -14,6 +14,9 @@ library(leaflet)
 library(xts)
 library(data.table)
 library(rgdal)
+library(shinyalert)
+library(shinybusy)
+library(shinyjs)
 
 #setwd("C:/Users/m.cortese/Desktop/Progetti/Corona")
 #############################################################################################################
@@ -21,6 +24,8 @@ library(rgdal)
 
 regioni<-read.csv("CoordinateRegioni.csv",sep=";",header=T,stringsAsFactors = F)
 province<-read.csv("Coordinate.csv",sep=";",header=T,stringsAsFactors = F)
+
+
 
 
 #############################################################################################################
@@ -32,7 +37,11 @@ province<-read.csv("Coordinate.csv",sep=";",header=T,stringsAsFactors = F)
 
 #Dashboard header carrying the title of the dashboard
 header <- dashboardHeader(
-  title ="Analisi Covid-19 Italia" 
+  title ="Analisi Covid-19 Italia" ,
+  tags$li(actionLink("openModal", label = " Attendi il caricamento dati", icon = icon("exclamation-triangle")),
+          class = "dropdown")
+
+  
 )
 
 
@@ -40,8 +49,9 @@ header <- dashboardHeader(
 sidebar <- dashboardSidebar(
   sidebarMenu(
     style = "position: fixed; overflow: visible;",
-    menuItem("Analisi Territoriale", tabName = "analisi", icon = icon("dashboard")),
-    menuItem("Analisi Trend", tabName = "trend", icon = icon("chart-line")),
+    menuItem("Generiche", tabName = "analisi", icon = icon("dashboard")),
+    menuItem("Analisi Nazionale", tabName = "trend", icon = icon("chart-line")),
+    menuItem("Analisi Regionale", tabName = "reg", icon = icon("chart-line")),
     menuItem("Informazioni",tabName = "info", icon = icon("question-circle")),
     menuItem("Nel mondo",tabName = "mondo", icon = icon("map")),
     
@@ -62,7 +72,10 @@ sidebar <- dashboardSidebar(
         img(src="https://www.technologyhub.it/public/uploads/sites/7/Healthy-Reply-LOGO-RGB.png",height = "40px",style="display: block; margin-left: auto; margin-right: auto;"),
         "<br>"
       )
-      ))
+      )),
+    useShinyalert(),  # Set up shinyalert
+    actionButton("preview", "", 
+                 style="color: #36393d; background-color: #36393d; border-color: #36393d")
       )
 )
 
@@ -71,10 +84,12 @@ sidebar <- dashboardSidebar(
 
 
 frow1 <- fluidRow(
-  valueBoxOutput("totale_casi_naz",3),
-  valueBoxOutput("positivi_naz",3),
-  valueBoxOutput("dimessi_naz",3),
-  valueBoxOutput("decessi_naz",3)
+
+      valueBoxOutput("totale_casi_naz",3),
+      valueBoxOutput("positivi_naz",3),
+      valueBoxOutput("dimessi_naz",3),
+      valueBoxOutput("decessi_naz",3)  
+
 )
 
 frow2<- fluidRow(
@@ -104,8 +119,10 @@ frow2<- fluidRow(
          tableOutput("giornoAnalisi")
   )
   
-  
+
 )
+
+
 
 frow3 <- fluidRow(
   leafletOutput("mappa",height =700),
@@ -131,11 +148,16 @@ frow5<-fluidRow(
 )
 
 frow6 <- fluidRow(
-  plotlyOutput("serie",height =500)
-)
+  plotlyOutput("serie",height =500),
+  hr(),
+  plotlyOutput("serieTassi",height =500))
 
 frow7 <- fluidRow(
-  plotlyOutput("serieVariazioni",height =500)
+  radioButtons("variabile", label = h3("Scegli variabile"),
+               choices = list("Positivi" = "pos", "Guariti" = "gu", "Decessi" = "dec","Contagi"="con"), 
+               selected = "pos"),
+  plotlyOutput("VariabiliPlot",height =500)
+  #plotlyOutput("serieVariazioni",height =500)
 )
 frow8<- fluidRow(
 
@@ -147,11 +169,22 @@ frow8<- fluidRow(
     )
   )
 
-  
 )
+frowProva<-fluidRow(
+  hr(),
+  hr(),
+  column(4),
+  column(4,
+         plotlyOutput("TortaRegione")),
+  column(4)
+)
+
+
+
 frow9<- fluidRow(
   plotlyOutput("serieReg",height =500),
-  plotlyOutput("serieProv",height =500)
+  plotlyOutput("serieProv",height =500),
+  h5(verbatimTextOutput("messaggio"),align="center")
   
 )
 
@@ -168,7 +201,7 @@ frow11 <- fluidRow(
 )
 
 frow12<- fluidRow(
-  h2("In questo momento di grande scompiglio vi vinvitiamo a prestare la massima attenzione alle misure si sicurezza e prevenzione. Diffidate da alcune informazioni che circolano sui social e nel web. ",align="justify"),
+  h2("In questo momento di grande scompiglio vi invitiamo a prestare la massima attenzione alle misure si sicurezza e prevenzione. Diffidate da alcune informazioni che circolano sui social e nel web. ",align="justify"),
   hr(),
   h3("Ogni sera alle 18:00 sarà possibile seguire in diretta le parole del Primo Ministro Giuseppe Conte o della Protezione civile presso i canali youtube.",align="justify"),
   HTML(paste0(
@@ -181,16 +214,26 @@ frow12<- fluidRow(
     "</table>",
     "<br>")),
   h2("Voci più autorevoli:", align="center"),
-  h3(helpText(   a("Protezione Civile",     href="http://www.protezionecivile.gov.it/home"))),
-  h3(helpText(   a("Il Governo",     href="http://www.governo.it/it/il-governo"))),
-  h3(helpText(   a("Ministero della salute",     href="http://www.salute.gov.it/portale/rapportiInternazionali/menuContenutoRapportiInternazionali.jsp?lingua=italiano&area=rapporti&menu=mondiale"))),
-  h3(helpText(   a("Organizzazione Mondiale della Sanità",     href="http://www.euro.who.int/en/home"))),
-  h3(helpText(   a("Rai News",     href="https://www.rainews.it/"))),
-  h3(helpText(   a("Sky tg 24",     href="https://tg24.sky.it/"))),
-  h3(helpText(   a("Ospedale Sacco Milano",     href="https://www.asst-fbf-sacco.it/news"))),
-  h3(helpText(   a("Dario Bressanini",     href="https://www.instagram.com/dario.bressanini/"))),
-  h3(helpText(   a("Roberta Villa",     href="https://www.instagram.com/robivil/?hl=it"))),
-  hr()
+  hr(),
+  column(4,
+         h3(helpText(   a("Protezione Civile",     href="http://www.protezionecivile.gov.it/home"))),
+         h3(helpText(   a("Il Governo",     href="http://www.governo.it/it/il-governo"))),
+         h3(helpText(   a("Ministero della salute",     href="http://www.salute.gov.it/portale/rapportiInternazionali/menuContenutoRapportiInternazionali.jsp?lingua=italiano&area=rapporti&menu=mondiale"))),
+         h3(helpText(   a("Organizzazione Mondiale della Sanità",     href="http://www.euro.who.int/en/home")))
+         ),
+  column(4,
+         h3(helpText(   a("Rai News",     href="https://www.rainews.it/"))),
+         h3(helpText(   a("Sky tg 24",     href="https://tg24.sky.it/"))),
+         h3(helpText(   a("Ospedale Sacco Milano",     href="https://www.asst-fbf-sacco.it/news"))),
+         h3(helpText(   a("Roberto Burioni",     href="https://www.facebook.com/robertoburioniMD/")))
+         ),
+  column(4,
+         h3(helpText(   a("Roberta Villa",     href="https://www.instagram.com/robivil/?hl=it"))),
+         h3(helpText(   a("Dario Bressanini",     href="https://www.instagram.com/dario.bressanini/"))),
+         h3(helpText(   a("Gianluca Pistore",     href="https://www.instagram.com/gianlucapistore/?hl=it")))
+         ),
+  hr(),
+  hr(),
 )
 
 frow13<-fluidRow(
@@ -229,14 +272,19 @@ frow14<-fluidPage(
 )
 
 
-# combine the two fluid rows to make the body
-body <- dashboardBody(tabItems(tabItem(tabName = "analisi",frow1, frow2, frow3,frow4,frow5),
-                               tabItem(tabName = "trend",frow6,frow7,frow8,frow9),
+ body <- dashboardBody(  
+   
+
+  tabItems(tabItem(tabName = "analisi",frow1, frow2,  frow3,frow4,frow5),
+                               tabItem(tabName = "trend",frow6,frow7),
+                               tabItem(tabName = "reg",frow8,frowProva,frow9),
                                tabItem(tabName = "info",frow10,frow11,frow12,frow13),
                                tabItem(tabName = "mondo",frow14)))
 
-#completing the ui part with dashboardPage
 ui <- dashboardPage(title = 'Analisi Covid-19 Italia', header, sidebar, body, skin='black')
+
+
+
 
 
 
@@ -246,8 +294,21 @@ ui <- dashboardPage(title = 'Analisi Covid-19 Italia', header, sidebar, body, sk
 
 ###############################################################################################################
 
-# create the server functions for the dashboard  
 server <- function(input, output,session) { 
+  
+  observeEvent(input$openModal, {
+    showModal(
+      modalDialog(title = "Esito",
+                  p("Dati Caricati"))
+    )
+  })
+  
+    observeEvent(!input$preview, {
+      shinyalert("", "Dati caricati con successo", type = "success")
+    })
+    
+
+
   
   output$dateText2 <- renderText({
     paste("input$date2 is", as.character(input$date2))
@@ -273,13 +334,36 @@ server <- function(input, output,session) {
                     "lat"=as.numeric(),"long"=as.numeric(),"ricoverati_con_sintomi"=as.numeric(),"terapia_intensiva"=as.numeric(),
                     "totale_ospedalizzati"=as.numeric(),"isolamento_domiciliare"=as.numeric(),"totale_attualmente_positivi"=as.numeric(),
                     "nuovi_attualmente_positivi"=as.numeric(),"dismessi_guariti"=as.numeric(),"deceduti"=as.numeric(),"totale_casi"=as.numeric(),
-                    "tamponi"=as.numeric())
-  
+                    "tamponi"=as.numeric(),stringsAsFactors = F)
+
   for(i in 1:length(file_regioni)){
     d_temp<-json_data_frame <- as.data.frame(file_regioni[[i]])
     d_reg<-rbind(d_reg,d_temp)
   }
-  d_reg$totale_attualmente_positivi[d_reg$totale_attualmente_positivi==0]<-NA
+  
+  
+  d_reg$data<-as.POSIXct(d_reg$data)
+  d_reg$stato<-as.character(d_reg$stato)
+  d_reg$codice_regione<-as.numeric(as.character(d_reg$codice_regione))
+  d_reg$denominazione_regione<-as.character(d_reg$denominazione_regione)
+  d_reg$lat<-as.numeric(as.character(d_reg$lat))
+  d_reg$long<-as.numeric(as.character(d_reg$long))
+  d_reg$ricoverati_con_sintomi<-as.numeric(as.character(d_reg$ricoverati_con_sintomi))
+  d_reg$terapia_intensiva<-as.numeric(as.character(d_reg$terapia_intensiva))
+  d_reg$totale_ospedalizzati<-as.numeric(as.character(d_reg$totale_ospedalizzati))
+  d_reg$isolamento_domiciliare<-as.numeric(as.character(d_reg$isolamento_domiciliare))
+  d_reg$totale_positivi<-as.numeric(as.character(d_reg$totale_positivi))
+  d_reg$variazione_totale_positivi<-as.numeric(as.character(d_reg$variazione_totale_positivi))
+  d_reg$nuovi_positivi<-as.numeric(as.character(d_reg$nuovi_positivi))
+  d_reg$dimessi_guariti<-as.numeric(as.character(d_reg$dimessi_guariti))
+  d_reg$deceduti<-as.numeric(as.character(d_reg$deceduti))
+  d_reg$totale_casi<-as.numeric(as.character(d_reg$totale_casi))
+  d_reg$tamponi<-as.numeric(as.character(d_reg$tamponi))
+  d_reg$denominazione_regione[d_reg$denominazione_regione=="Emilia-Romagna"]<-"Emilia Romagna"
+  
+  
+  
+  d_reg$totale_positivi[d_reg$totale_positivi==0]<-NA
   names(d_reg)[3]<-"reg_istat_code_num"
   names(d_reg)[4]<-"reg_name"
   d_reg$reg_name<-as.character(d_reg$reg_name)
@@ -287,55 +371,55 @@ server <- function(input, output,session) {
   d_reg$stato<-as.character(d_reg$stato)
 
   for(i in 1:nrow(d_reg)){
-    if(is.na(d_reg$totale_attualmente_positivi[i])){
+    if(is.na(d_reg$totale_positivi[i])){
       d_reg$colore[i]<-"transparent"
       d_reg$radius[i]<-0
     }else{
-      if(d_reg$totale_attualmente_positivi[i]<=10){
+      if(d_reg$totale_positivi[i]<=10){
         d_reg$colore[i]<-"#a4a4f5"
         d_reg$radius[i]<-2
       }
-      if(d_reg$totale_attualmente_positivi[i]>10 && d_reg$totale_attualmente_positivi[i]<=20 ){
+      if(d_reg$totale_positivi[i]>10 && d_reg$totale_positivi[i]<=20 ){
         d_reg$colore[i]<-"#8c8cf5"
         d_reg$radius[i]<-3
       }
-      if(d_reg$totale_attualmente_positivi[i]>20 && d_reg$totale_attualmente_positivi[i]<=50){
+      if(d_reg$totale_positivi[i]>20 && d_reg$totale_positivi[i]<=50){
         d_reg$colore[i]<-"#6e6ef0"
         d_reg$radius[i]<-4
       }
-      if(d_reg$totale_attualmente_positivi[i]>50 && d_reg$totale_attualmente_positivi[i]<=100){
+      if(d_reg$totale_positivi[i]>50 && d_reg$totale_positivi[i]<=100){
         d_reg$colore[i]<-"#5151f0"
         d_reg$radius[i]<-5
       }
-      if(d_reg$totale_attualmente_positivi[i]>100 && d_reg$totale_attualmente_positivi[i]<=250){
+      if(d_reg$totale_positivi[i]>100 && d_reg$totale_positivi[i]<=250){
         d_reg$colore[i]<-"#3a3af0"
         d_reg$radius[i]<-6
       }
-      if(d_reg$totale_attualmente_positivi[i]>250 && d_reg$totale_attualmente_positivi[i]<=500){
+      if(d_reg$totale_positivi[i]>250 && d_reg$totale_positivi[i]<=500){
         d_reg$colore[i]<-"#1a1aed"
         d_reg$radius[i]<-7
       }
-      if(d_reg$totale_attualmente_positivi[i]>500 && d_reg$totale_attualmente_positivi[i]<=750){
+      if(d_reg$totale_positivi[i]>500 && d_reg$totale_positivi[i]<=750){
         d_reg$colore[i]<-"#0808d1"
         d_reg$radius[i]<-8
       }
-      if(d_reg$totale_attualmente_positivi[i]>750 && d_reg$totale_attualmente_positivi[i]<=1250){
+      if(d_reg$totale_positivi[i]>750 && d_reg$totale_positivi[i]<=1250){
         d_reg$colore[i]<-"#0707ad"
         d_reg$radius[i]<-9
       }
-      if(d_reg$totale_attualmente_positivi[i]>1250 && d_reg$totale_attualmente_positivi[i]<=2500){
+      if(d_reg$totale_positivi[i]>1250 && d_reg$totale_positivi[i]<=2500){
         d_reg$colore[i]<-"#070785"
         d_reg$radius[i]<-10
       }
-      if(d_reg$totale_attualmente_positivi[i]>2500 && d_reg$totale_attualmente_positivi[i]<=3500){
+      if(d_reg$totale_positivi[i]>2500 && d_reg$totale_positivi[i]<=3500){
         d_reg$colore[i]<-"#050563"
         d_reg$radius[i]<-11
       }
-      if(d_reg$totale_attualmente_positivi[i]>3500 && d_reg$totale_attualmente_positivi[i]<=4000 ){
+      if(d_reg$totale_positivi[i]>3500 && d_reg$totale_positivi[i]<=4000 ){
         d_reg$colore[i]<-"#040447"
         d_reg$radius[i]<-12
       }
-      if(d_reg$totale_attualmente_positivi[i]>4000){
+      if(d_reg$totale_positivi[i]>4000){
         d_reg$colore[i]<-"#000000"
         d_reg$radius[i]<-13
       }
@@ -351,9 +435,9 @@ server <- function(input, output,session) {
   d_reg2[is.na(d_reg2)]<-0
   
   d_naz<-aggregate(list(d_reg2$ricoverati_con_sintomi,d_reg2$terapia_intensiva,d_reg2$totale_ospedalizzati,d_reg2$isolamento_domiciliare,
-                        d_reg2$totale_attualmente_positivi,d_reg2$nuovi_attualmente_positivi,d_reg2$dimessi_guariti,d_reg2$deceduti,d_reg2$totale_casi),by=list(d_reg2$stato,d_reg2$data),FUN=sum)
+                        d_reg2$totale_positivi,d_reg2$variazione_totale_positivi,d_reg2$nuovi_positivi,d_reg2$dimessi_guariti,d_reg2$deceduti,d_reg2$totale_casi),by=list(d_reg2$stato,d_reg2$data),FUN=sum)
   
-  names(d_naz)<-c("stato","data","ricoverati_con_sintomi","terapia_intensiva","totale_ospedalizzati","isolamento_domiciliare","totale_attualmente_positivi","nuovi_attualmente_positivi","dimessi_guariti","deceduti","totale_casi")
+  names(d_naz)<-c("stato","data","ricoverati_con_sintomi","terapia_intensiva","totale_ospedalizzati","isolamento_domiciliare","totale_positivi","variazione_positivi","nuovi_positivi","dimessi_guariti","deceduti","totale_casi")
   d_naz$variazione_rs_ass[1]<-NA
   d_naz$variazione_rs_per[1]<-NA
   d_naz$variazione_ti_ass[1]<-NA
@@ -380,7 +464,7 @@ server <- function(input, output,session) {
     d_naz$variazione_to_per[i+1]<-(d_naz$totale_ospedalizzati[i+1]-d_naz$totale_ospedalizzati[i])/d_naz$totale_ospedalizzati[i]*100
     d_naz$variazione_id_ass[i+1]<-d_naz$isolamento_domiciliare[i+1]-d_naz$isolamento_domiciliare[i]
     d_naz$variazione_id_per[i+1]<-(d_naz$isolamento_domiciliare[i+1]-d_naz$isolamento_domiciliare[i])/d_naz$isolamento_domiciliare[i]*100
-    d_naz$variazione_nap_per[i+1]<-(d_naz$nuovi_attualmente_positivi[i+1]/d_naz$totale_attualmente_positivi[i])*100
+    d_naz$variazione_nap_per[i+1]<-(d_naz$nuovi_positivi[i+1]/d_naz$totale_positivi[i])*100
     d_naz$variazione_dg_ass[i+1]<-d_naz$dimessi_guariti [i+1]-d_naz$dimessi_guariti [i]
     d_naz$variazione_dg_per[i+1]<-(d_naz$dimessi_guariti [i+1]-d_naz$dimessi_guariti [i])/d_naz$dimessi_guariti [i]*100
     d_naz$variazione_d_ass[i+1]<-d_naz$deceduti[i+1]-d_naz$deceduti[i]
@@ -394,8 +478,22 @@ server <- function(input, output,session) {
   gat1$Statistica<-gsub("_"," ",gat1$Statistica)
   Ospedalizzati<-gat1[gat1$Statistica=="RICOVERATI CON SINTOMI" | gat1$Statistica=="TERAPIA INTENSIVA" ,]
   Positivi<-gat1[gat1$Statistica=="ISOLAMENTO DOMICILIARE" | gat1$Statistica=="TOTALE OSPEDALIZZATI" ,]
-  Casi<-gat1[gat1$Statistica=="DECEDUTI" | gat1$Statistica=="DIMESSI GUARITI"| gat1$Statistica=="TOTALE ATTUALMENTE POSITIVI" ,]
+  Casi<-gat1[gat1$Statistica=="DECEDUTI" | gat1$Statistica=="DIMESSI GUARITI"| gat1$Statistica=="TOTALE POSITIVI" ,]
   
+  gat2<-gather(d_reg,"Statistica","Valore",ricoverati_con_sintomi:deceduti,na.rm=TRUE)
+  gat2$Statistica<-toupper(gat2$Statistica)
+  gat2$Statistica<-gsub("_"," ",gat2$Statistica)
+  gat2<-gat2[gat2$data==max(gat2$data),]
+  gat2<-gat2[gat2$Statistica!="TOTALE OSPEDALIZZATI",]
+  gat2<-gat2[gat2$Statistica!="TOTALE POSITIVI",]
+  gat2<-gat2[gat2$Statistica!="VARIAZIONE TOTALE POSITIVI",]
+  gat2<-gat2[gat2$Statistica!="NUOVI POSITIVI",]
+  
+  gat2$colore[gat2$Statistica=="RICOVERATI CON SINTOMI"]<-"rgba(34,113,179,1)"
+  gat2$colore[gat2$Statistica=="TERAPIA INTENSIVA"]<-"rgba(37,40,80,1)"
+  gat2$colore[gat2$Statistica=="ISOLAMENTO DOMICILIARE"]<-"rgba(0,127,255,1)"
+  gat2$colore[gat2$Statistica=="DECEDUTI"]<-"rgba(255,0,0,1)"
+  gat2$colore[gat2$Statistica=="DIMESSI GUARITI"]<-"rgba(80,200,120,1)"
   
   
   filtrata_naz<-d_naz[d_naz$data==max(d_naz$data),]
@@ -420,11 +518,15 @@ server <- function(input, output,session) {
     d_prov<-rbind(d_prov,d_temp)
   }
   names(d_prov)[5]<-"prov_istat_code_num"
+  
   d_prov$denominazione_regione<-as.character(d_prov$denominazione_regione)
+  d_prov$denominazione_regione[d_prov$denominazione_regione=="Emilia-Romagna"]<-"Emilia Romagna"
   d_prov$denominazione_provincia<-as.character(d_prov$denominazione_provincia)
   d_prov$sigla_provincia<-as.character(d_prov$sigla_provincia)
   d_prov$data<-as.POSIXct(d_prov$data)
   d_prov$stato<-as.character(d_prov$stato)
+  d_prov$totale_casi<-as.numeric(as.character(d_prov$totale_casi))
+  
   d_prov$totale_casi[d_prov$totale_casi==0]<-NA
   
   d_prov$lat[which(d_prov$denominazione_provincia=="In fase di definizione/aggiornamento")]<-NA
@@ -434,80 +536,18 @@ server <- function(input, output,session) {
   
   Reg <- data.table(d_reg)
   Prov <- data.table(d_prov)
+  Gat2<-data.table(gat2)
   
   RegioneSerie<-reactive({
-        as.data.frame(Reg[reg_name %like% input$regione])
+    as.data.frame(Reg[reg_name %like% input$regione])
   })
-  
   ProvinciaSerie<-reactive({
     as.data.frame(Prov[denominazione_regione %like% input$regione])
   })
-  
-  
-  
-  SerieReg<-reactive({
-        if(input$regione!=""){
-        plot_ly(RegioneSerie(), x = RegioneSerie()$data)%>% add_lines(y = RegioneSerie()$totale_casi, name = "Totale Casi", line = list(shape = "spline"))%>% 
-          add_lines(y = RegioneSerie()$dimessi_guariti, name = "Guariti", line = list(shape = "spline"))%>% 
-          add_lines(y = RegioneSerie()$deceduti, name = "Deceduti", line = list(shape = "spline")) %>%
-          add_lines(y = RegioneSerie()$totale_attualmente_positivi, name = "Attualmente positivi", line = list(shape = "spline"))%>% 
-          layout(
-            title = paste0("Andamento ",unique(RegioneSerie()$reg_name)),
-            xaxis = list(
-              rangeselector = list(
-                buttons = list(
-                  list(
-                    count = 3,
-                    label = "3 days",
-                    step = "day",
-                    stepmode = "backward"),
-                  list(
-                    count = 6,
-                    label = "6 days",
-                    step = "day",
-                    stepmode = "backward"),
-                  list(
-                    count = 10,
-                    label = "10 days",
-                    step = "day",
-                    stepmode = "backward"),
-                  list(
-                    count = 1,
-                    label = "month",
-                    step = "month",
-                    stepmode = "todate"),
-                  list(step = "all"))),
-              rangeslider = list(type = "Data")),
-            yaxis = list(title = "Numero Persone"))%>% 
-          layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
-          layout(paper_bgcolor='rgb(236, 240, 245)')%>% 
-          layout(legend = list(x = 0, y = 0.9))
-        }
-
+  RegionePie<-reactive({
+    as.data.frame(Gat2[reg_name %like% input$regione])
   })
   
-  
-
-  SerieProv<-reactive({
-    if(input$regione!=""){
-      fig <- ProvinciaSerie()
-      fig <- fig %>% plot_ly(x = as.Date(ProvinciaSerie()$data), y = ~totale_casi, color = ~denominazione_provincia,type="bar")%>%
-        layout(legend = list(x = 0, y = 0.9)) %>%
-        layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
-        layout(paper_bgcolor='rgb(236, 240, 245)') 
-    }
-    
-  })
-  
-  output$serieReg<-renderPlotly({
-    SerieReg()
-  })
-  
-  output$serieProv<-renderPlotly({
-    SerieProv()
-  })
-  
-
   
   for(i in 1:nrow(d_prov)){
     if(is.na(d_prov$totale_casi[i])){
@@ -578,7 +618,12 @@ server <- function(input, output,session) {
   
   ###################################################################################################################
   
-
+  #################################################################################################################
+  
+  # Pagina 1  Analisi Territoriale
+  
+  ##################################################################################################################
+  
   output$visuale <- renderPrint({ input$SceltaVisuale })
   
   Giorno_Naz<-reactive({
@@ -608,7 +653,6 @@ server <- function(input, output,session) {
   output$tassoGuarigione <- renderPrint({
     paste0(Guarigione(),"%")
   })
-  
   
   
   
@@ -664,44 +708,75 @@ server <- function(input, output,session) {
     data.frame("Data"=paste0("Giorno visualizzato: ",as.Date(unique(Giorno_Reg()$data))))
   })
   
-  #creating the valueBoxOutput content
   output$totale_casi_naz <- renderValueBox({
-    valueBox(
-      (paste0('Totale casi ',"<br/>",formatC(Giorno_Naz()$totale_casi, format="d", big.mark=','),"<br/>")%>%
-         lapply(htmltools::HTML))
-      ,paste0('+',formatC(Giorno_Naz()$variazione_tc_ass, format="d", big.mark=','))
-      ,icon = icon("stats",lib='glyphicon')
-      ,color = "black")
-    
+    if(Giorno_Naz()$variazione_tc_ass>0){
+      valueBox(
+        (paste0('Totale casi',"<br/>",formatC(Giorno_Naz()$totale_casi, format="d", big.mark=','),"<br/>")%>%
+           lapply(htmltools::HTML))
+        ,paste0('+',formatC(Giorno_Naz()$variazione_tc_ass, format="d", big.mark=',')," contagi")
+        ,icon = icon("procedures",lib='glyphicon')
+        ,color = "black")
+    }else{
+      valueBox(
+        (paste0('Totale casi',"<br/>",formatC(Giorno_Naz()$totale_casi, format="d", big.mark=','),"<br/>")%>%
+           lapply(htmltools::HTML))
+        ,paste0(formatC(Giorno_Naz()$variazione_tc_ass, format="d", big.mark=',')," contagi")
+        ,icon = icon("procedures",lib='glyphicon')
+        ,color = "black")
+    }
   })
   
   output$positivi_naz <- renderValueBox({
-    valueBox(
-      (paste0('Positivi',"<br/>",formatC(Giorno_Naz()$totale_attualmente_positivi, format="d", big.mark=','),"<br/>")%>%
-         lapply(htmltools::HTML))
-      ,paste0('+',formatC(Giorno_Naz()$nuovi_attualmente_positiv, format="d", big.mark=','))
-      ,icon = icon("procedures",lib='glyphicon')
-      ,color = "blue")
-    
+    if(Giorno_Naz()$variazione_positivi>0){
+      valueBox(
+        (paste0('Positivi',"<br/>",formatC(Giorno_Naz()$totale_positivi, format="d", big.mark=','),"<br/>")%>%
+           lapply(htmltools::HTML))
+        ,paste0('+',formatC(Giorno_Naz()$variazione_positivi, format="d", big.mark=',')," variazione positivi")
+        ,icon = icon("procedures",lib='glyphicon')
+        ,color = "blue")
+    }else{
+      valueBox(
+        (paste0('Positivi',"<br/>",formatC(Giorno_Naz()$totale_positivi, format="d", big.mark=','),"<br/>")%>%
+           lapply(htmltools::HTML))
+        ,paste0(formatC(Giorno_Naz()$variazione_positivi, format="d", big.mark=',')," variazione positivi")
+        ,icon = icon("procedures",lib='glyphicon')
+        ,color = "blue")
+    }
   })
   
   output$dimessi_naz <- renderValueBox({
-    valueBox(
-      (paste0('Dimessi guariti',"<br/>",formatC(Giorno_Naz()$dimessi_guariti, format="d", big.mark=','),"<br/>")%>%
-         lapply(htmltools::HTML))
-      ,paste0('+',formatC(Giorno_Naz()$variazione_dg_ass, format="d", big.mark=','))
-      ,icon = icon("check",lib='glyphicon')
-      ,color = "navy")
-    
+    if(Giorno_Naz()$variazione_dg_ass>0){
+      valueBox(
+        (paste0('Dimessi guariti',"<br/>",formatC(Giorno_Naz()$dimessi_guariti, format="d", big.mark=','),"<br/>")%>%
+           lapply(htmltools::HTML))
+        ,paste0('+',formatC(Giorno_Naz()$variazione_dg_ass, format="d", big.mark=',')," nuovi guariti")
+        ,icon = icon("check",lib='glyphicon')
+        ,color = "navy")
+    }else{
+      valueBox(
+        (paste0('Dimessi guariti',"<br/>",formatC(Giorno_Naz()$dimessi_guariti, format="d", big.mark=','),"<br/>")%>%
+           lapply(htmltools::HTML))
+        ,paste0(formatC(Giorno_Naz()$variazione_dg_ass, format="d", big.mark=',')," nuovi guariti")
+        ,icon = icon("check",lib='glyphicon')
+        ,color = "navy")
+    }
   })
   
   
   output$decessi_naz <- renderValueBox({
-    valueBox(
+    if(Giorno_Naz()$variazione_d_ass>0){
+      valueBox(
         (paste0('Totale decessi',"<br/>",formatC(Giorno_Naz()$deceduti, format="d", big.mark=','),"<br/>")%>%
            lapply(htmltools::HTML))
-        ,paste0('+',formatC(Giorno_Naz()$variazione_d_ass, format="d", big.mark=',')),
-      color = "red")
+        ,paste0('+',formatC(Giorno_Naz()$variazione_d_ass, format="d", big.mark=',')," nuovi decessi"),
+        color = "red")
+    }else{
+      valueBox(
+        (paste0('Totale decessi',"<br/>",formatC(Giorno_Naz()$deceduti, format="d", big.mark=','),"<br/>")%>%
+           lapply(htmltools::HTML))
+        ,paste0(formatC(Giorno_Naz()$variazione_d_ass, format="d", big.mark=',')," nuovi decessi"),
+        color = "red")
+    }
     
   })
   
@@ -713,7 +788,7 @@ server <- function(input, output,session) {
     if(input$SceltaVisuale=="Regione"){
       mytext <- paste(
         "Regione: ",Giorno_Reg()$reg_name, "<br/>",
-        "Attualmente positivi: ", Giorno_Reg()$totale_attualmente_positivi, "<br/>", 
+        "Attualmente positivi: ", Giorno_Reg()$totale_positivi, "<br/>", 
         "Guariti: ", Giorno_Reg()$dimessi_guariti, "<br/>", 
         "Decessi: ", Giorno_Reg()$deceduti, sep="") %>%
         lapply(htmltools::HTML)
@@ -750,139 +825,6 @@ server <- function(input, output,session) {
   
   output$mappa<-renderLeaflet({
     sceltagrafico()
-  })
-  
-  
-  
-  # table
-  
-  output$value <- renderPrint({ input$checkbox })
-  
-  
-  sceltatabella<-reactive({
-    if(input$SceltaVisuale=="Regione"){
-      data.frame("Regione"=Giorno_Reg()[,4],"Ricoverati"=Giorno_Reg()[,7],"Terapia Intensiva"=Giorno_Reg()[,8],"Totale Ospedalizzati"=Giorno_Reg()[,9],
-                 "Isolamento domiciliare"=Giorno_Reg()[,10],"Attualmente Positivi"=Giorno_Reg()[,11],
-                 "Nuovi attualmente Positivi"=Giorno_Reg()[,12],"Dimessi guariti"=Giorno_Reg()[,13],"Deceduti"=Giorno_Reg()[,14],
-                 "Totale Casi"=Giorno_Reg()[,15])
-
-    }else{
-      if(input$SceltaVisuale=="Provincia"){
-        data.frame("Regione"=Giorno_Prov()[!is.na(Giorno_Prov()[,8]),4],"Provincia"=Giorno_Prov()[!is.na(Giorno_Prov()[,8]),6],"Totale Casi"=Giorno_Prov()[!is.na(Giorno_Prov()[,8]),10])
-      }
-    }
-  })
-  
-  
-  sceltaOutput<-reactive({
-    if(input$checkbox=="TRUE"){
-      sceltatabella()
-    }
-  })
-  
-  output$tabella<- DT::renderDataTable({
-
-    DT::datatable(sceltaOutput(), rownames = FALSE, options = list(
-      columnDefs = list(list(className = 'dt-center')),
-      pageLength =10,
-    lengthMenu = c(5, 10, 15, 20)
-    ))
-
-    
-    })
-  
-  
-  
-  #creating series plot
-  
-  fig <- plot_ly(d_naz, x = d_naz$data)
-  fig <- fig %>% add_lines(y = d_naz$totale_casi, name = "Totale Casi", line = list(shape = "spline"))
-  fig <- fig %>% add_lines(y = d_naz$dimessi_guariti, name = "Guariti", line = list(shape = "spline"))
-  fig <- fig %>% add_lines(y = d_naz$deceduti, name = "Deceduti", line = list(shape = "spline"))
-  fig <- fig %>% add_lines(y = d_naz$totale_attualmente_positivi, name = "Attualmente positivi", line = list(shape = "spline"))
-  fig <- fig %>% layout(
-    title = "Andamento Coronavirus",
-    xaxis = list(
-      rangeselector = list(
-        buttons = list(
-          list(
-            count = 3,
-            label = "3 days",
-            step = "day",
-            stepmode = "backward"),
-          list(
-            count = 6,
-            label = "6 days",
-            step = "day",
-            stepmode = "backward"),
-          list(
-            count = 10,
-            label = "10 days",
-            step = "day",
-            stepmode = "backward"),
-          list(
-            count = 1,
-            label = "month",
-            step = "month",
-            stepmode = "todate"),
-          list(step = "all"))),
-      
-      rangeslider = list(type = "Data")),
-    
-    yaxis = list(title = "Numero Persone"))
-  
-  fig <-fig %>% layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
-    layout(paper_bgcolor='rgb(236, 240, 245)')
-  fig <- fig %>% layout(legend = list(x = 0, y = 0.9))
-  
-  output$serie<-renderPlotly({
-    fig
-  })
-  
-  
-  fig2 <- plot_ly(d_naz, x = d_naz$data)
-  fig2 <- fig2 %>% add_lines(y = d_naz$variazione_tc_per, name = "Variazione Totale Casi",text = paste("Nuovi:",d_naz$variazione_tc_ass),line = list(shape = "spline"))
-  fig2 <- fig2 %>% add_lines(y = d_naz$variazione_dg_per, name = "Variazione Guariti",text = paste("Nuovi:",d_naz$variazione_dg_ass),line = list(shape = "spline"))
-  fig2 <- fig2 %>% add_lines(y = d_naz$variazione_d_per, name = "Variazione Deceduti",text = paste("Nuovi:",d_naz$variazione_d_ass),line = list(shape = "spline"))
-  fig2 <- fig2 %>% add_lines(y = d_naz$variazione_nap_per, name = "Variazione Attualmente positivi",text = paste("Nuovi:",d_naz$nuovi_attualmente_positivi),line = list(shape = "spline"))
-  fig2 <- fig2 %>% layout(
-    title = "Andamento Variazione Percentuale Coronavirus",
-    xaxis = list(
-      rangeselector = list(
-        buttons = list(
-          list(
-            count = 3,
-            label = "3 days",
-            step = "day",
-            stepmode = "backward"),
-          list(
-            count = 6,
-            label = "6 days",
-            step = "day",
-            stepmode = "backward"),
-          list(
-            count = 10,
-            label = "10 days",
-            step = "day",
-            stepmode = "backward"),
-          list(
-            count = 1,
-            label = "month",
-            step = "month",
-            stepmode = "todate"),
-          list(step = "all"))),
-      
-      rangeslider = list(type = "Data")),
-    
-    yaxis = list(title = "Numero Persone"))
-  
-  fig2 <-fig2 %>% layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
-    layout(paper_bgcolor='rgb(236, 240, 245)')
-  fig2 <- fig2 %>% layout(legend = list(x = 0.7, y = 0.9))
-  
-  
-  output$serieVariazioni<-renderPlotly({
-    fig2
   })
   
   
@@ -941,10 +883,332 @@ server <- function(input, output,session) {
   
   
   
+  # table
+  
+  output$value <- renderPrint({ input$checkbox })
+  
+  
+  sceltatabella<-reactive({
+    if(input$SceltaVisuale=="Regione"){
+      data.frame("Regione"=Giorno_Reg()[,4],"Ricoverati"=Giorno_Reg()[,7],"Terapia Intensiva"=Giorno_Reg()[,8],"Totale Ospedalizzati"=Giorno_Reg()[,9],
+                 "Isolamento domiciliare"=Giorno_Reg()[,10],"Contagi"=Giorno_Reg()[,13],"Attualmente Positivi"=Giorno_Reg()[,11],"Variazione Positivi"=Giorno_Reg()[,12],
+                 "Dimessi guariti"=Giorno_Reg()[,14],"Deceduti"=Giorno_Reg()[,15],
+                 "Totale Casi"=Giorno_Reg()[,16],"Tamponi effettuati"=Giorno_Reg()[,17])
+
+    }else{
+      if(input$SceltaVisuale=="Provincia"){
+        data.frame("Regione"=Giorno_Prov()[!is.na(Giorno_Prov()[,8]),4],"Provincia"=Giorno_Prov()[!is.na(Giorno_Prov()[,8]),6],"Totale Casi"=Giorno_Prov()[!is.na(Giorno_Prov()[,8]),10])
+      }
+    }
+  })
+  
+  
+  sceltaOutput<-reactive({
+    if(input$checkbox=="TRUE"){
+      sceltatabella()
+    }
+  })
+  
+  output$tabella<- DT::renderDataTable({
+
+    DT::datatable(sceltaOutput(), rownames = FALSE, options = list(
+      columnDefs = list(list(className = 'dt-center')),
+      pageLength =10,
+    lengthMenu = c(5, 10, 15, 20)
+    ))
+
+    
+    })
+  
+  ###################################################################################################################
+  
+  # Pagina 2 Analisi Trend Nazionale
+  
+  ##################################################################################################################
+  
+  #creating series plot
+  
+  fig <- plot_ly(d_naz, x = d_naz$data)
+  fig <- fig %>% add_lines(y = d_naz$totale_casi, name = "Totale Casi", line = list(color='rgba(37,40,80,1)',shape = "spline"))
+  fig <- fig %>% add_lines(y = d_naz$dimessi_guariti, name = "Guariti", line = list(color='rgba(80,200,120,1)',shape = "spline"))
+  fig <- fig %>% add_lines(y = d_naz$deceduti, name = "Deceduti", line = list(color='rgba(255,0,0,1)',shape = "spline"))
+  fig <- fig %>% add_lines(y = d_naz$totale_positivi, name = "Attualmente positivi", line = list(color='rgba(34,113,179,1)',shape = "spline"))
+  fig <- fig %>% layout(
+    title = "Andamento Coronavirus",
+    xaxis = list(
+      rangeselector = list(
+        buttons = list(
+          list(
+            count = 3,
+            label = "3 days",
+            step = "day",
+            stepmode = "backward"),
+          list(
+            count = 6,
+            label = "6 days",
+            step = "day",
+            stepmode = "backward"),
+          list(
+            count = 10,
+            label = "10 days",
+            step = "day",
+            stepmode = "backward"),
+          list(
+            count = 1,
+            label = "month",
+            step = "month",
+            stepmode = "todate"),
+          list(step = "all"))),
+      
+      rangeslider = list(type = "Data")),
+    
+    yaxis = list(title = "Numero Persone"))
+  
+  fig <-fig %>% layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
+    layout(paper_bgcolor='rgb(236, 240, 245)')
+  fig <- fig %>% layout(legend = list(x = 0, y = 0.9))
+  
+  output$serie<-renderPlotly({
+    fig
+  })
+  
+  ##
+  
+  guarigione_1 <- list(
+    xref = 'paper',
+    yref = 'y',
+    x = 0.05,
+    y = round(d_naz$dimessi_guariti[1]/d_naz$totale_casi[1],4)*100,
+    xanchor = 'right',
+    yanchor = 'middle',
+    text = ~paste(round(d_naz$dimessi_guariti[1]/d_naz$totale_casi[1],4)*100, '%'),
+    font = list(family = 'Arial',
+                size = 14,
+                color = 'rgba(67,67,67,1)'),
+    showarrow = FALSE)
+
+  decessi_1 <- list(
+    xref = 'paper',
+    yref = 'y',
+    x = 0.05,
+    y = round(d_naz$deceduti[1]/d_naz$totale_casi[1],4)*100,
+    xanchor = 'right',
+    yanchor = 'middle',
+    text = ~paste(round(d_naz$deceduti[1]/d_naz$totale_casi[1],4)*100, '%'),
+    font = list(family = 'Arial',
+                size = 14,
+                color = 'rgba(67,67,67,1)'),
+    showarrow = FALSE)
+
+  guarigione_2 <- list(
+    xref = 'paper',
+    x = 0.95,
+    y = round(d_naz$dimessi_guariti[nrow(d_naz)]/d_naz$totale_casi[nrow(d_naz)],4)*100,
+    xanchor = 'left',
+    yanchor = 'middle',
+    text = paste(round(d_naz$dimessi_guariti[nrow(d_naz)]/d_naz$totale_casi[nrow(d_naz)],4)*100, '%'),
+    font = list(family = 'Arial',
+                size = 14,
+                color = 'rgba(67,67,67,1)'),
+    showarrow = FALSE)
+
+  decessi_2 <- list(
+    xref = 'paper',
+    x = 0.95,
+    y = round(d_naz$deceduti[nrow(d_naz)]/d_naz$totale_casi[nrow(d_naz)],4)*100,
+    xanchor = 'left',
+    yanchor = 'middle',
+    text = paste(round(d_naz$deceduti[nrow(d_naz)]/d_naz$totale_casi[nrow(d_naz)],4)*100, '%'),
+    font = list(family = 'Arial',
+                size = 12,
+                color = 'rgba(67,67,67,1)'),
+    showarrow = FALSE)
+
+  tas <- plot_ly(d_naz, x = d_naz$data)
+  tas <- tas %>% add_lines(y = round(d_naz$dimessi_guariti/d_naz$totale_casi,4)*100, name = "Tasso Guarigione", line = list(color='rgba(80,200,120,1)', shape = "spline"))
+  tas <- tas %>% add_lines(y = round(d_naz$deceduti/d_naz$totale_casi,4)*100, name = "Tasso Mortalità", line = list(color='rgba(255,0,0,1)',shape = "spline"))
+  tas <- tas %>% layout(title = "Andamento Tassi",
+                        annotations = guarigione_1)
+  tas <-tas %>% layout(plot_bgcolor='rgb(236, 240, 245)') %>%
+    layout(paper_bgcolor='rgb(236, 240, 245)')
+  tas <- tas %>% layout(legend = list(x = 0, y = 0.9))
+  tas <- tas %>% add_trace(x = c(d_naz$data[1], d_naz$data[nrow(d_naz)]),
+                           y = c(round(d_naz$dimessi_guariti[1]/d_naz$totale_casi[1],4)*100, round(d_naz$dimessi_guariti[nrow(d_naz)]/d_naz$totale_casi[nrow(d_naz)],4)*100),
+                           name="Valore Guariti%",type = 'scatter', mode = 'markers', marker = list(color = 'rgba(80,200,120, 1)', size = 8))
+  tas <- tas %>% add_trace(x = c(d_naz$data[1], d_naz$data[nrow(d_naz)]),
+                           y = c(round(d_naz$deceduti[1]/d_naz$totale_casi[1],4)*100, round(d_naz$deceduti[nrow(d_naz)]/d_naz$totale_casi[nrow(d_naz)],4)*100),
+                           name="Valore Decessi%",type = 'scatter', mode = 'markers', marker = list(color = 'rgba(255,0,0,1)', size = 12))
+  tas <- tas %>% layout(annotations = decessi_1)
+  tas <- tas %>% layout(annotations = guarigione_2)
+  tas <- tas %>% layout(annotations = decessi_2)
+  tas
+  output$serieTassi<-renderPlotly({
+    tas
+  })
+  
+  
+  
+  
+  sceltaplot<-reactive({
+    if(as.character(input$variabile)=="pos"){
+      plot_ly(d_naz, x = d_naz$data, y = d_naz$variazione_positivi, type = 'bar', text= paste0("Nuovi positivi: ",d_naz$variazione_positivi),
+              marker = list(color = 'rgb(158,202,225)',
+                            line = list(color = 'rgb(8,48,107)',
+                                        width = 1.5))) %>% 
+        layout( title = "Andamento giornaliero Nuovi Positivi") %>%
+        layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
+        layout(paper_bgcolor='rgb(236, 240, 245)')
+    }else{
+    if(as.character(input$variabile)=="gu"){
+      plot_ly(d_naz, x = d_naz$data, y = d_naz$variazione_dg_ass, type = 'bar', text= paste0("Nuovi guariti: ",d_naz$variazione_dg_ass),
+              marker = list(color = 'rgb(26,148,49)',
+                            line = list(color = 'rgb(26,102,46)',
+                                        width = 1.5))) %>% 
+        layout( title = "Andamento giornaliero Guariti") %>%
+        layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
+        layout(paper_bgcolor='rgb(236, 240, 245)')
+    }else{
+    if(as.character(input$variabile)=="dec"){
+      plot_ly(d_naz, x = d_naz$data, y = d_naz$variazione_d_ass, type = 'bar', text= paste0("Nuovi decessi: ",d_naz$variazione_d_ass),
+              marker = list(color = 'rgb(250,0,0)',
+                            line = list(color = 'rgb(200,8,21)',
+                                        width = 1.5))) %>% 
+        layout( title = "Andamento giornaliero Decessi") %>%
+        layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
+        layout(paper_bgcolor='rgb(236, 240, 245)')
+    }else{
+          if(as.character(input$variabile)=="con"){
+            plot_ly(d_naz, x = d_naz$data, y = d_naz$nuovi_positivi, type = 'bar', text= paste0("Contagi: ",d_naz$nuovi_positivi),
+                    marker = list(color = 'rgb(128,128,128)',
+                                  line = list(color = 'rgb(0,0,0)',
+                                              width = 1.5))) %>% 
+              layout( title = "Andamento giornaliero Contagi") %>%
+              layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
+              layout(paper_bgcolor='rgb(236, 240, 245)')
+          }}
+      }
+    }
+  })
+  
+  output$VariabiliPlot<-renderPlotly({
+    sceltaplot()
+  })
+  
+  
+
+  
+  ############################################################################################################
+  
+  # Pagina 3  Analisi Reg
+  
+  ############################################################################################################
+  
+  
+  output$TortaRegione<-renderPlotly({
+    if(input$regione!=""){
+    RegionePie() %>% plot_ly(labels = ~Statistica, values = ~Valore, marker = list(colors = ~colore,
+                                                                                   line = list(color = '#FFFFFF', width = 1)))%>% 
+      add_pie(hole = 0.6)%>% 
+      layout(title = "",  showlegend = T,
+             xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+             yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))%>%
+      layout(plot_bgcolor='#ecf0f5') %>% 
+      layout(paper_bgcolor='#ecf0f5') %>%
+      layout(legend = list(orientation = 'h'))
+    }
+  })
+  
+  
+  
+ 
+  SerieReg<-reactive({
+    if(input$regione!=""){
+      plot_ly(RegioneSerie(), x = RegioneSerie()$data)%>% add_lines(y = RegioneSerie()$totale_casi, 
+                                                                    name = "Totale Casi", line = list(color='rgba(37,40,80,1)',shape = "spline"))%>% 
+        add_lines(y = RegioneSerie()$dimessi_guariti, name = "Guariti", 
+                  line = list(color='rgba(80,200,120,1)',shape = "spline"))%>% 
+        add_lines(y = RegioneSerie()$deceduti, name = "Deceduti", 
+                  line = list(color='rgba(255,0,0,1)',shape = "spline")) %>%
+        add_lines(y = RegioneSerie()$totale_positivi, name = "Attualmente positivi",
+                  line = list(color='rgba(34,113,179,1)',shape = "spline"))%>% 
+        layout(
+          title = paste0("Andamento ",unique(RegioneSerie()$reg_name)),
+          xaxis = list(
+            rangeselector = list(
+              buttons = list(
+                list(
+                  count = 3,
+                  label = "3 days",
+                  step = "day",
+                  stepmode = "backward"),
+                list(
+                  count = 6,
+                  label = "6 days",
+                  step = "day",
+                  stepmode = "backward"),
+                list(
+                  count = 10,
+                  label = "10 days",
+                  step = "day",
+                  stepmode = "backward"),
+                list(
+                  count = 1,
+                  label = "month",
+                  step = "month",
+                  stepmode = "todate"),
+                list(step = "all"))),
+            rangeslider = list(type = "Data")),
+          yaxis = list(title = "Numero Persone"))%>% 
+        layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
+        layout(paper_bgcolor='rgb(236, 240, 245)')%>% 
+        layout(legend = list(x = 0, y = 0.9))
+    }
+    
+  })
+
+  
+  SerieProv<-reactive({
+    if(input$regione!=""){
+      fig <- ProvinciaSerie()
+      fig <- fig %>% plot_ly(x = as.Date(ProvinciaSerie()$data), y = ~totale_casi, color = ~denominazione_provincia,type="bar")%>%
+        layout(legend = list(x = 0, y = 0.9)) %>%
+        layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
+        layout(paper_bgcolor='rgb(236, 240, 245)') %>%
+        layout(yaxis=list(title = "Numero Persone")) %>%
+        layout(
+          title = paste0("Andamento province ",unique(RegioneSerie()$reg_name)))
+    }
+    
+  })
+  
+  output$serieReg<-renderPlotly({
+    SerieReg()
+  })
+  
+  output$serieProv<-renderPlotly({
+    SerieProv()
+  })
+  
+  Messaggio<-reactive({
+    if(input$regione!=""){
+      paste0("**Nota bene eventuali casi di 'In fase di definizione/aggiornamento' dipendono dalle fasi di verifica della positività**")
+    }
+  })
+  output$messaggio<-renderPrint({
+    Messaggio()
+  }
+  )
+  
+  #######################################################################################################################
+  
+  #Pagina 4 Informazioni 
   
   ########################################################################################################################
   
-                              #WORLD
+  
+  ########################################################################################################################
+  
+  # Pagina 5 #WORLD
   
   ########################################################################################################################
   world_spdf <- readOGR( 
@@ -955,8 +1219,14 @@ server <- function(input, output,session) {
   
 
   
-  Confermati<-read.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv",header=T,sep=",")
-  Confermati<-gather(Confermati,"Date","Confermati",X1.22.20:names(Confermati)[ncol(Confermati)],na.rm=TRUE)
+  Confermati<-read.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv",header=T,sep=",")
+  if("X1.22.20" %in% names(Confermati)){
+    Confermati<-gather(Confermati,"Date","Confermati",X1.22.20:names(Confermati)[ncol(Confermati)],na.rm=TRUE)
+  }else{
+    if("X1.22.2020" %in% names(Confermati)){
+      Confermati<-gather(Confermati,"Date","Confermati",X1.22.2020:names(Confermati)[ncol(Confermati)],na.rm=TRUE)
+    }
+  }
   a<-seq(as.Date("2020/1/22"), by = "day", length.out = length(unique(Confermati$Date)))
   data_presente<-unique(Confermati$Date)
   Confermati$Data<-as.character(seq(1,nrow(Confermati)))
@@ -990,14 +1260,23 @@ server <- function(input, output,session) {
   
   
   
-  Guariti<-read.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv",header=T,sep=",")
-  Guariti<-gather(Guariti,"Date","Guariti",X1.22.20:names(Guariti)[ncol(Guariti)],na.rm=TRUE)
+  Guariti<-read.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv",header=T,sep=",")
+
+  if("X1.22.20" %in% names(Guariti)){
+    Guariti<-gather(Guariti,"Date","Guariti",X1.22.20:names(Guariti)[ncol(Guariti)],na.rm=TRUE)
+  }else{
+    if("X1.22.2020" %in% names(Confermati)){
+      Guariti<-gather(Guariti,"Date","Guariti",X1.22.2020:names(Guariti)[ncol(Guariti)],na.rm=TRUE)
+    }
+  }
+  #Guariti<-gather(Guariti,"Date","Guariti",X1.22.2020:names(Guariti)[ncol(Guariti)],na.rm=TRUE)
   a<-seq(as.Date("2020/1/22"), by = "day", length.out = length(unique(Guariti$Date)))
   data_presente<-unique(Guariti$Date)
   Guariti$Data<-as.character(seq(1,nrow(Guariti)))
   for(i in 1:length(data_presente)){
     Guariti$Data[which(Guariti$Date==data_presente[i])]<-as.character(a[i])
   }
+  names(Guariti)[1]<-"Province.State"
   Guariti$Province.State<-as.character(Guariti$Province.State)
   Guariti$Country.Region<-as.character(Guariti$Country.Region)
   Guariti$Country.Region[Guariti$Province.State=="St Martin"]<-"Saint Martin"
@@ -1020,8 +1299,16 @@ server <- function(input, output,session) {
   names(Guariti)<-c("date","Nazione","Guariti")
   
   
-  Decessi<-read.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv",header=T,sep=",")
-  Decessi<-gather(Decessi,"Date","Decessi",X1.22.20:names(Decessi)[ncol(Decessi)],na.rm=TRUE)
+  Decessi<-read.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv",header=T,sep=",")
+  
+  if("X1.22.20" %in% names(Decessi)){
+    Decessi<-gather(Decessi,"Date","Decessi",X1.22.20:names(Decessi)[ncol(Decessi)],na.rm=TRUE)
+  }else{
+    if("X1.22.2020" %in% names(Decessi)){
+      Decessi<-gather(Decessi,"Date","Decessi",X1.22.2020:names(Decessi)[ncol(Decessi)],na.rm=TRUE)
+    }
+  }
+  
   a<-seq(as.Date("2020/1/22"), by = "day", length.out = length(unique(Decessi$Date)))
   data_presente<-unique(Decessi$Date)
   Decessi$Data<-as.character(seq(1,nrow(Decessi)))
@@ -1049,7 +1336,13 @@ server <- function(input, output,session) {
   Decessi<-aggregate(Decessi$Decessi,by=list(Decessi$Data,Decessi$Country.Region),FUN=sum)
   names(Decessi)<-c("date","Nazione","Decessi")
   
-  Totale<-cbind(Confermati,"Guariti"=Guariti$Guariti,"Decessi"=Decessi$Decessi)
+  
+  Con_Dec<-inner_join(Confermati,Decessi,by=c("date","Nazione"))
+  Totale<-inner_join(Guariti,Con_Dec,by=c("date","Nazione"))
+  
+  
+  
+  
   Totale$Positivi<-Totale$Confermati-Totale$Guariti-Totale$Decessi
   
   
