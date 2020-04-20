@@ -5,14 +5,21 @@ Questo progetto , per la sezione Italia, è stato ispirato dalla condivisione de
 
 È stata realizzata una shiny app per analizzare i dati giornalieri pubblicati dalla protezione civile per la situazione di "Pandemia" che stiamo vivendo in questo periodo.
 
-La Shiny app è  suddivisa in 3 sezioni:
+La Shiny app è  suddivisa in 5 sezioni:
+    
 
-* Analisi Territoriale
-* Analisi Trend
+* Generiche
+* Analisi Nazionale
+* Analisi Regionale
 * Informazioni
 * Nel Mondo
 
-## Analisi Territoriali 
+
+#### N.B. Questa app rappresenta i dati nella loro interezza, non è una finestra temporale giornaliera, perciò prevede il caricamento ogni volta di una quantità di dati maggiore, il tempo di attesa è cresciuto, l'app impiega circa 40 secondi per mostrare tutto e un messaggio ci informerà sul'effettivo caricamento dei dati. 
+
+![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/home_dati.jpg)
+
+## Generiche
 
 Questa tab prevede la possibilità di osservare su mappa lo sviluppo dei casi positivi sia su base regionale che su base provinciale, dando la possibilità di osservare il fenomeno nei diversi giorni.
 
@@ -32,22 +39,38 @@ Tabella
 
 
 
-## Analisi Trend 
+## Analisi Nazionale 
 
-Questa tab consente di osservare il fenomeno su base nazionale nella sua interezza, sono presenti 1 line plot differenti nel quale si analizzano i numeri assoluti delle variabili prese in esame.
+Questa tab consente di osservare il fenomeno su base nazionale nella sua interezza, sono presenti 2 line plot differenti nel quale si analizzano i numeri assoluti delle variabili prese in esame e l'andamento dei tassi di guarigione e di mortalità
 
-![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/trend_1.jpg)
+Trend nazionale
 
-Il successivo grafico consente di valutare l'andamento giornaliero dell variabili
+![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/nazione_trend.jpg)
 
-![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/trend_2.jpg)
+Trend tassi
+
+![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/nazione_tassi.jpg)
+
+
+
+Il successivo grafico consente di valutare l'andamento giornaliero delle variabili
+
+![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/nazione_variabili.jpg)
+
+
+## Analisi Regionale 
+
+Questa tab consente di osservare il fenomeno su base regionale.
+Vi è la possibilità di scegliere una regione e valutare l'andamento giornaliero della regione e delle sue province.
+Si parte con un pie chart che mostra la ripartizione dei casi nella regione
+
+![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/regione_pie.jpg)
 
 Vi è la possibilità di scegliere una regione e valutare l'andamento giornaliero della regione e delle sue province.
 
-![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/trend_3.jpg)
+![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/regione_trend.jpg)
 
-![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/trend_4.jpg)
-
+![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/province_trend.jpg)
 
 ## Informazioni
 
