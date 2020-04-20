@@ -55,7 +55,7 @@ Trend tassi
 
 Il successivo grafico consente di valutare l'andamento giornaliero delle variabili
 
-![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/nazione_variabili.jpg)
+![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/nazione_variabile.jpg)
 
 
 ## Analisi Regionale 
@@ -68,11 +68,11 @@ Si parte con un pie chart che mostra la ripartizione dei casi nella regione
 
 Vi è la possibilità di scegliere una regione e valutare l'andamento giornaliero della regione e delle sue province.
 
-![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/regione_trend.jpg)
+![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/regioni_trend.jpg)
 
 ![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/province_trend.jpg)
 
-## Informazion
+## Informazioni
 
 Informazioni, invece, racchiude l’insieme dei canali utili in questo periodo e i link per le dirette del Presidente del Consiglio Giuseppe Conte e della Protezione Civile.
 
