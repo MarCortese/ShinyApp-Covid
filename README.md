@@ -72,7 +72,7 @@ Vi è la possibilità di scegliere una regione e valutare l'andamento giornalier
 
 ![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/province_trend.jpg)
 
-## Informazioni
+## Informazion
 
 Informazioni, invece, racchiude l’insieme dei canali utili in questo periodo e i link per le dirette del Presidente del Consiglio Giuseppe Conte e della Protezione Civile.
 
