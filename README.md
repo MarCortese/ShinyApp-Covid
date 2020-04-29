@@ -41,7 +41,7 @@ Tabella
 
 
 
-## Analisi Nazionale 
+## Analisi Nazionale
 
 Questa tab consente di osservare il fenomeno su base nazionale nella sua interezza, sono presenti 2 line plot differenti nel quale si analizzano i numeri assoluti delle variabili prese in esame e l'andamento dei tassi di guarigione e di mortalità
 
