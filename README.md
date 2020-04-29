@@ -17,7 +17,7 @@ La Shiny app è  suddivisa in 6 sezioni:
 
 
 
-#### N.B. Questa app rappresenta i dati nella loro interezza, non è una finestra temporale giornaliera, perciò prevede il caricamento ogni volta di una quantità di dati maggiore, il tempo di attesa è cresciuto, l'app impiega circa 40 secondi per mostrare tutto e un messaggio ci informerà sul'effettivo caricamento dei dati. 
+#### N.B. Questa app rappresenta i dati nella loro interezza, non è una finestra temporale giornaliera, perciò prevede il caricamento ogni volta di una quantità di dati maggiore, il tempo di attesa è cresciuto, l'app impiega qualche secondo per mostrare tutto e un messaggio ci informerà sul'effettivo caricamento dei dati. 
 
 ![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/home_dati.jpg)
 
