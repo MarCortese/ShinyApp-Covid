@@ -11,8 +11,10 @@ La Shiny app è  suddivisa in 5 sezioni:
 * Generiche
 * Analisi Nazionale
 * Analisi Regionale
-* Informazioni
 * Nel Mondo
+* Trend Nazioni
+* Informazioni
+
 
 
 #### N.B. Questa app rappresenta i dati nella loro interezza, non è una finestra temporale giornaliera, perciò prevede il caricamento ogni volta di una quantità di dati maggiore, il tempo di attesa è cresciuto, l'app impiega circa 40 secondi per mostrare tutto e un messaggio ci informerà sul'effettivo caricamento dei dati. 
@@ -72,14 +74,6 @@ Vi è la possibilità di scegliere una regione e valutare l'andamento giornalier
 
 ![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/province_trend.jpg)
 
-## Informazioni
-
-Informazioni, invece, racchiude l’insieme dei canali utili in questo periodo e i link per le dirette del Presidente del Consiglio Giuseppe Conte e della Protezione Civile.
-
-![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/info_1.jpg)
-
-![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/info_2.jpg)
-
 
 ## Nel mondo 
 
@@ -91,7 +85,21 @@ Tabella
 
 ![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/mondo_2.jpg)
 
+## Trend Nazioni
 
+Dopo avere osseervato la situazione attuale delle diverse nazioni del mondo vi è la possibilità di valutare il trend dall'inizio dell'epidemia fino all'ultimo giorno di valutazione per ogni nazione.
+
+
+![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/nazioni_trend.jpg)
+
+
+## Informazioni
+
+Informazioni, invece, racchiude l’insieme dei canali utili in questo periodo e i link per le dirette del Presidente del Consiglio Giuseppe Conte e della Protezione Civile.
+
+![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/info_1.jpg)
+
+![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/info_2.jpg)
 
 
 ###### Link
