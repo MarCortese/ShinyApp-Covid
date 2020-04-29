@@ -5,7 +5,7 @@ Questo progetto , per la sezione Italia, è stato ispirato dalla condivisione de
 
 È stata realizzata una shiny app per analizzare i dati giornalieri pubblicati dalla protezione civile per la situazione di "Pandemia" che stiamo vivendo in questo periodo.
 
-La Shiny app è  suddivisa in 5 sezioni:
+La Shiny app è  suddivisa in 6 sezioni:
     
 
 * Generiche
