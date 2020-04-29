@@ -79,7 +79,7 @@ Anche in questo caso si dà una maggiore evidenza della situazione attuale grazi
 
 ## Nel mondo 
 
-"Nel mondo" consente di osservare l'andamneto del Covid-19 nel mondo, con le informazioni sui casi confermati, i  casi attualmente positivi, i dimessi guariti e i decessi.
+"Nel mondo" consente di osservare l'andamento del Covid-19 nel mondo, con le informazioni sui casi confermati, i  casi attualmente positivi, i dimessi guariti e i decessi.
 
 ![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/mondo_1.jpg)
 
