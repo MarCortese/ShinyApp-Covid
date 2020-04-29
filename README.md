@@ -1,5 +1,5 @@
 # Covid-19
-Questo progetto , per la sezione Italia, è stato ispirato dalla condivisione dei dati da parte di OnData https://github.com/ondata/covid19italia sul Covid-19 in Italia, mentre per la sezione Mondo è stato ispirato dai dati reperiti al seguente link https://github.com/CSSEGISandData/COVID-19 sul Covid-19 nel mondo.
+Questo progetto , per la sezione Italia, è stato ispirato dalla condivisione dei dati da parte di OnData https://github.com/ondata/covid19italia sul Covid-19 in Italia ma successivamente il puntamento per i dati è statao spostato verso il repository ufficiale della protezione civile https://github.com/pcm-dpc/COVID-19 , mentre per la sezione Mondo è stato ispirato dai dati reperiti al seguente link https://github.com/CSSEGISandData/COVID-19 sul Covid-19 nel mondo.
 
 
 
@@ -29,8 +29,8 @@ Questa tab prevede la possibilità di osservare su mappa lo sviluppo dei casi po
 
 
 Vi è la possibilità di vedere, attraverso pie chart, la ripartizione dei casi positivi seguendo la seguente suddivisione:
-Totale Ospedalizzati=Ricoverati con sintomi+Terapia Intensiva, /n
-Attualmente Positivi=Totale Ospedalizzati+Isolamento Domiciliare,\n
+Totale Ospedalizzati=Ricoverati con sintomi+Terapia Intensiva, 
+Attualmente Positivi=Totale Ospedalizzati+Isolamento Domiciliare,
 Totale Casi=Attualmente Positivi+Dimessi Guariti+Decessi
 
 ![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/home_2.jpg)
@@ -63,8 +63,8 @@ Il successivo grafico consente di valutare l'andamento giornaliero delle variabi
 ## Analisi Regionale 
 
 Questa tab consente di osservare il fenomeno su base regionale.
-Vi è la possibilità di scegliere una regione e valutare l'andamento giornaliero della regione e delle sue province.
-Si parte con un pie chart che mostra la ripartizione dei casi nella regione
+Vi è la possibilità di scegliere una regione e valutare l'andamento giornaliero della regione e delle sue province, mantenendo comunque un focus sulla situazione attuale con la tabella riassuntiva.
+Si parte con un pie chart che mostra la ripartizione dei casi nella regione.
 
 ![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/regione_pie.jpg)
 
@@ -72,12 +72,14 @@ Vi è la possibilità di scegliere una regione e valutare l'andamento giornalier
 
 ![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/regioni_trend.jpg)
 
+Anche in questo caso si dà una maggiore evidenza della situazione attuale grazie alla valutazione di una tabella riassuntiva dell'ultimo giorno.
+
 ![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/province_trend.jpg)
 
 
 ## Nel mondo 
 
-Nel mondo consente di osservare l'andamneto del Covid-19 nel mondo, con le informazioni sui casi confermati, i  casi attualmente positivi, i dimessi guaritio e i decessi.
+"Nel mondo" consente di osservare l'andamneto del Covid-19 nel mondo, con le informazioni sui casi confermati, i  casi attualmente positivi, i dimessi guariti e i decessi.
 
 ![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/mondo_1.jpg)
 
@@ -85,9 +87,10 @@ Tabella
 
 ![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/mondo_2.jpg)
 
+
 ## Trend Nazioni
 
-Dopo avere osseervato la situazione attuale delle diverse nazioni del mondo vi è la possibilità di valutare il trend dall'inizio dell'epidemia fino all'ultimo giorno di valutazione per ogni nazione.
+Dopo avere osservato la situazione attuale delle diverse nazioni del mondo vi è la possibilità di valutare il trend dall'inizio della pandemia fino all'ultimo giorno di valutazione per ogni nazione.
 
 
 ![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/nazioni_trend.jpg)
