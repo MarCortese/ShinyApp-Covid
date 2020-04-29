@@ -25,7 +25,7 @@ La Shiny app è  suddivisa in 6 sezioni:
 
 Questa tab prevede la possibilità di osservare su mappa lo sviluppo dei casi positivi sia su base regionale che su base provinciale, dando la possibilità di osservare il fenomeno nei diversi giorni.
 
-![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/home_1.jpg)
+![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/home__new.jpg)
 
 
 Vi è la possibilità di vedere, attraverso pie chart, la ripartizione dei casi positivi seguendo la seguente suddivisione:
