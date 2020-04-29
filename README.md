@@ -29,8 +29,8 @@ Questa tab prevede la possibilità di osservare su mappa lo sviluppo dei casi po
 
 
 Vi è la possibilità di vedere, attraverso pie chart, la ripartizione dei casi positivi seguendo la seguente suddivisione:
-Totale Ospedalizzati=Ricoverati con sintomi+Terapia Intensiva
-Attualmente Positivi=Totale Ospedalizzati+Isolamento Domiciliare
+Totale Ospedalizzati=Ricoverati con sintomi+Terapia Intensiva, /n
+Attualmente Positivi=Totale Ospedalizzati+Isolamento Domiciliare,\n
 Totale Casi=Attualmente Positivi+Dimessi Guariti+Decessi
 
 ![alt text](https://raw.githubusercontent.com/MarCortese/Covid-19/master/Corona/Screen/home_2.jpg)
