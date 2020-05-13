@@ -1,5 +1,5 @@
 # Covid-19
-Questo progetto , per la sezione Italia, è stato ispirato dalla condivisione dei dati da parte di OnData https://github.com/ondata/covid19italia sul Covid-19 in Italia ma successivamente il puntamento per i dati è statao spostato verso il repository ufficiale della protezione civile https://github.com/pcm-dpc/COVID-19 , mentre per la sezione Mondo è stato ispirato dai dati reperiti al seguente link https://github.com/CSSEGISandData/COVID-19 sul Covid-19 nel mondo.
+Questo progetto , per la sezione Italia, è stato ispirato dalla condivisione dei dati da parte di OnData https://github.com/ondata/covid19italia sul Covid-19 in Italia ma successivamente il puntamento per i dati è stato spostato verso il repository ufficiale della protezione civile https://github.com/pcm-dpc/COVID-19 , mentre per la sezione Mondo è stato ispirato dai dati reperiti al seguente link https://github.com/CSSEGISandData/COVID-19 sul Covid-19 nel mondo.
 
 
 
