@@ -24,6 +24,7 @@ library(shinyjs)
 
 regioni<-read.csv("CoordinateRegioni.csv",sep=";",header=T,stringsAsFactors = F)
 province<-read.csv("Coordinate.csv",sep=";",header=T,stringsAsFactors = F)
+#demos<-read.csv("Demografia.csv",header=T,sep=";",dec=",",stringsAsFactors = F)
 
 
 
@@ -52,8 +53,9 @@ sidebar <- dashboardSidebar(
     menuItem("Generiche", tabName = "analisi", icon = icon("dashboard")),
     menuItem("Analisi Nazionale", tabName = "trend", icon = icon("chart-line")),
     menuItem("Analisi Regionale", tabName = "reg", icon = icon("chart-line")),
-    menuItem("Informazioni",tabName = "info", icon = icon("question-circle")),
     menuItem("Nel mondo",tabName = "mondo", icon = icon("map")),
+    menuItem("Trend Nazioni",tabName = "nazioni", icon = icon("map")),
+    menuItem("Informazioni",tabName = "info", icon = icon("question-circle")),
     
     HTML(paste0(
       "<br><br><br><br><br><br><br><br><br>",
@@ -67,9 +69,9 @@ sidebar <- dashboardSidebar(
       "</table>",
       "<br>"),
       HTML(paste0(
-        "<p style = 'text-align: center;'><small>&copy; - Marco Cortese - <script>document.write(yyyy);</script></small></p>",
+        "<p style = 'text-align: center;'><medium> - Marco Cortese - <script>document.write(yyyy);</script></medium></p>",
         "<br><br><br><br><br><br><br>",
-        img(src="https://www.technologyhub.it/public/uploads/sites/7/Healthy-Reply-LOGO-RGB.png",height = "40px",style="display: block; margin-left: auto; margin-right: auto;"),
+        #img(src="https://lh3.googleusercontent.com/proxy/mOgE8r2tx12tABtu5ikMHzU2s4lxWIIKk0EU0HgAUA6ZoN92T1kBULy9BLYar-0-nsoX9xvfDYBYFopRBjcBHxK-V1rDjMnJoZtmCP6EvrgRJCAZ7GOT",height = "100px",style="display: block; margin-left: auto; margin-right: auto;"),
         "<br>"
       )
       )),
@@ -110,7 +112,8 @@ frow2<- fluidRow(
          h5("Tasso di mortalità",align="center"),
          h5(verbatimTextOutput("tassoMortalita"),align="center"),
          h5("Tasso di guarigione",align="center"),
-         h5(verbatimTextOutput("tassoGuarigione"),align="center"),
+         h5(verbatimTextOutput("tassoGuarigione"),align="center")
+         #verbatimTextOutput("mostradata")
          ),
   column(4,
          hr(),
@@ -125,7 +128,7 @@ frow2<- fluidRow(
 
 
 frow3 <- fluidRow(
-  leafletOutput("mappa",height =700),
+  leafletOutput("mappa",height =400),
   hr(),
   hr()
 )
@@ -170,7 +173,13 @@ frow8<- fluidRow(
   )
 
 )
-frowProva<-fluidRow(
+frow9aa<-fluidRow(
+  tableOutput('dt_reg'),
+  #hr(),
+  tableOutput('dt_reg_tassi')
+  #tableOutput('dt_reg_perc')
+)
+frow9a<-fluidRow(
   hr(),
   hr(),
   column(4),
@@ -183,6 +192,7 @@ frowProva<-fluidRow(
 
 frow9<- fluidRow(
   plotlyOutput("serieReg",height =500),
+  tableOutput('dt_prov'),
   plotlyOutput("serieProv",height =500),
   h5(verbatimTextOutput("messaggio"),align="center")
   
@@ -229,7 +239,6 @@ frow12<- fluidRow(
          ),
   column(4,
          h3(helpText(   a("Roberta Villa",     href="https://www.instagram.com/robivil/?hl=it"))),
-         h3(helpText(   a("Dario Bressanini",     href="https://www.instagram.com/dario.bressanini/"))),
          h3(helpText(   a("Gianluca Pistore",     href="https://www.instagram.com/gianlucapistore/?hl=it")))
          ),
   hr(),
@@ -267,19 +276,65 @@ frow14<-fluidPage(
   
   div(style = 'overflow-x: scroll', DT::dataTableOutput('tabella_world'))
   
-
-
+  
 )
+
+frow15<-fluidRow(
+  selectizeInput(
+  'nazione', 'Seleziona la nazione', choices = NULL,
+  options = list(
+    placeholder = '',
+    onInitialize = I('function() { this.setValue(""); }')
+    )
+  ),
+  hr(),
+  plotlyOutput("serieNazWorld",height =500)
+  
+)
+
 
 
  body <- dashboardBody(  
    
+   # tags$head(tags$style(HTML( '
+   #                              /* logo */
+   #                              .skin-blue .main-header .logo {
+   #                              background-color: #000E28;
+   #                              }
+   # 
+   #                              /* logo when hovered */
+   #                              .skin-blue .main-header .logo:hover {
+   #                              background-color: #000E28;
+   #                              }
+   # 
+   #                              /* navbar (rest of the header) */
+   #                              .skin-blue .main-header .navbar {
+   #                              background-color: #000E28;
+   #                              }
+   # 
+   #                              /* main sidebar */
+   #                              .skin-blue .main-sidebar {
+   #                              background-color: #000E28;
+   #                              }
+   # 
+   #                              /* active selected tab in the sidebarmenu */
+   #                              .skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
+   #                              background-color: #0887B2;
+   #                              }
+   #                              
+   #                              /* other links in the sidebarmenu when hovered */
+   #                              .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
+   #                              background-color: #0887B2;
+   #                              }'))),
+   # 
+   
 
   tabItems(tabItem(tabName = "analisi",frow1, frow2,  frow3,frow4,frow5),
                                tabItem(tabName = "trend",frow6,frow7),
-                               tabItem(tabName = "reg",frow8,frowProva,frow9),
+                               tabItem(tabName = "reg",frow8,frow9aa,frow9a,frow9),
                                tabItem(tabName = "info",frow10,frow11,frow12,frow13),
-                               tabItem(tabName = "mondo",frow14)))
+                               tabItem(tabName = "mondo",frow14),
+                               tabItem(tabName ="nazioni",frow15)))
 
 ui <- dashboardPage(title = 'Analisi Covid-19 Italia', header, sidebar, body, skin='black')
 
@@ -299,7 +354,9 @@ server <- function(input, output,session) {
   observeEvent(input$openModal, {
     showModal(
       modalDialog(title = "Esito",
-                  p("Dati Caricati"))
+                  strong("Dati Caricati"),
+                  img(src="https://1.bp.blogspot.com/-rQIx6VXc4v4/WymIJew8KQI/AAAAAAAgZbo/1_UPg6fJLck781dhlOJyPQHzK3_4zbg2QCLcBGAs/s1600/AW1238190_00.gif",height = "40px",style="display: block; margin-left: auto; margin-right: auto;")
+      )
     )
   })
   
@@ -325,22 +382,33 @@ server <- function(input, output,session) {
   
   # elaborazione regioni
   
-  file_regioni<-"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-regioni.json"%>% 
-    GET() %>% 
-    content() %>% 
-    jsonlite::fromJSON(simplifyVector = FALSE)
-  
-  d_reg<-data.frame("data"=as.character(),"stato"=as.character(),"codice_regione"=as.character(),"denominazione_regione"=as.character(),
-                    "lat"=as.numeric(),"long"=as.numeric(),"ricoverati_con_sintomi"=as.numeric(),"terapia_intensiva"=as.numeric(),
-                    "totale_ospedalizzati"=as.numeric(),"isolamento_domiciliare"=as.numeric(),"totale_attualmente_positivi"=as.numeric(),
-                    "nuovi_attualmente_positivi"=as.numeric(),"dismessi_guariti"=as.numeric(),"deceduti"=as.numeric(),"totale_casi"=as.numeric(),
-                    "tamponi"=as.numeric(),stringsAsFactors = F)
-
-  for(i in 1:length(file_regioni)){
-    d_temp<-json_data_frame <- as.data.frame(file_regioni[[i]])
-    d_reg<-rbind(d_reg,d_temp)
+  # file_regioni<-"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-regioni.json"%>% 
+  #   GET() %>% 
+  #   content() %>% 
+  #   jsonlite::fromJSON(simplifyVector = FALSE)
+  # 
+  # d_reg<-data.frame("data"=as.character(),"stato"=as.character(),"codice_regione"=as.character(),"denominazione_regione"=as.character(),
+  #                   "lat"=as.numeric(),"long"=as.numeric(),"ricoverati_con_sintomi"=as.numeric(),"terapia_intensiva"=as.numeric(),
+  #                   "totale_ospedalizzati"=as.numeric(),"isolamento_domiciliare"=as.numeric(),"totale_positivi"=as.numeric(),"variazione_nuovi_positivi"=as.numeric(),
+  #                   "nuovi_positivi"=as.numeric(),"dimessi_guariti"=as.numeric(),"deceduti"=as.numeric(),"totale_casi"=as.numeric(),
+  #                   "tamponi"=as.numeric(),stringsAsFactors = F)
+  # 
+  # for(i in 1:length(file_regioni)){
+  #   d_temp<-data.frame("data"=as.character(file_regioni[[i]]$data),"stato"=as.character(file_regioni[[i]]$stato),"codice_regione"=as.character(file_regioni[[i]]$codice_regione),"denominazione_regione"=as.character(file_regioni[[i]]$denominazione_regione),
+  #                               "lat"=as.numeric(file_regioni[[i]]$lat),"long"=as.numeric(file_regioni[[i]]$long),"ricoverati_con_sintomi"=as.numeric(file_regioni[[i]]$ricoverati_con_sintomi),"terapia_intensiva"=as.numeric(file_regioni[[i]]$terapia_intensiva),
+  #                               "totale_ospedalizzati"=as.numeric(file_regioni[[i]]$totale_ospedalizzati),"isolamento_domiciliare"=as.numeric(file_regioni[[i]]$isolamento_domiciliare),"totale_positivi"=as.numeric(file_regioni[[i]]$totale_positivi),
+  #                               "variazione_nuovi_positivi"=as.numeric(file_regioni[[i]]$variazione_totale_positivi),"nuovi_positivi"=as.numeric(file_regioni[[i]]$nuovi_positivi),"dimessi_guariti"=as.numeric(file_regioni[[i]]$dimessi_guariti),"deceduti"=as.numeric(file_regioni[[i]]$deceduti),"totale_casi"=as.numeric(file_regioni[[i]]$totale_casi),
+  #                               "tamponi"=as.numeric(file_regioni[[i]]$tamponi),stringsAsFactors = F)
+  #   #d_temp<-json_data_frame <- as.data.frame(file_regioni[[i]])
+  #   d_reg<-rbind(d_reg,d_temp)
+  # }
+  d_reg<-read.csv("https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-regioni.csv",sep=",",header=T,stringsAsFactors = F)
+  for(i in 1:nrow(d_reg)){
+    if(substring(d_reg$data[i],1,8)=="20202020"){
+      d_reg$data[i]<-paste0("2020",substring(d_reg$data[i],9,22))
+    }
   }
-  
+  d_reg$data<-as.POSIXlt(d_reg$data)
   
   d_reg$data<-as.POSIXct(d_reg$data)
   d_reg$stato<-as.character(d_reg$stato)
@@ -353,7 +421,8 @@ server <- function(input, output,session) {
   d_reg$totale_ospedalizzati<-as.numeric(as.character(d_reg$totale_ospedalizzati))
   d_reg$isolamento_domiciliare<-as.numeric(as.character(d_reg$isolamento_domiciliare))
   d_reg$totale_positivi<-as.numeric(as.character(d_reg$totale_positivi))
-  d_reg$variazione_totale_positivi<-as.numeric(as.character(d_reg$variazione_totale_positivi))
+  #d_reg$variazione_nuovi_positivi<-as.numeric(as.character(d_reg$variazione_nuovi_positivi))
+  d_reg$variazione_nuovi_positivi<-as.numeric(as.character(d_reg$variazione_totale_positivi))
   d_reg$nuovi_positivi<-as.numeric(as.character(d_reg$nuovi_positivi))
   d_reg$dimessi_guariti<-as.numeric(as.character(d_reg$dimessi_guariti))
   d_reg$deceduti<-as.numeric(as.character(d_reg$deceduti))
@@ -428,6 +497,9 @@ server <- function(input, output,session) {
     
   }
   
+  # d_reg$mese<-as.numeric(substr(as.character(d_reg$data),6,7))
+  # d_reg$giorno<-as.numeric(substr(as.character(d_reg$data),9,10))
+  
   
   
   # elaborazione nazione
@@ -435,7 +507,7 @@ server <- function(input, output,session) {
   d_reg2[is.na(d_reg2)]<-0
   
   d_naz<-aggregate(list(d_reg2$ricoverati_con_sintomi,d_reg2$terapia_intensiva,d_reg2$totale_ospedalizzati,d_reg2$isolamento_domiciliare,
-                        d_reg2$totale_positivi,d_reg2$variazione_totale_positivi,d_reg2$nuovi_positivi,d_reg2$dimessi_guariti,d_reg2$deceduti,d_reg2$totale_casi),by=list(d_reg2$stato,d_reg2$data),FUN=sum)
+                        d_reg2$totale_positivi,d_reg2$variazione_nuovi_positivi,d_reg2$nuovi_positivi,d_reg2$dimessi_guariti,d_reg2$deceduti,d_reg2$totale_casi),by=list(d_reg2$stato,d_reg2$data),FUN=sum)
   
   names(d_naz)<-c("stato","data","ricoverati_con_sintomi","terapia_intensiva","totale_ospedalizzati","isolamento_domiciliare","totale_positivi","variazione_positivi","nuovi_positivi","dimessi_guariti","deceduti","totale_casi")
   d_naz$variazione_rs_ass[1]<-NA
@@ -466,12 +538,15 @@ server <- function(input, output,session) {
     d_naz$variazione_id_per[i+1]<-(d_naz$isolamento_domiciliare[i+1]-d_naz$isolamento_domiciliare[i])/d_naz$isolamento_domiciliare[i]*100
     d_naz$variazione_nap_per[i+1]<-(d_naz$nuovi_positivi[i+1]/d_naz$totale_positivi[i])*100
     d_naz$variazione_dg_ass[i+1]<-d_naz$dimessi_guariti [i+1]-d_naz$dimessi_guariti [i]
-    d_naz$variazione_dg_per[i+1]<-(d_naz$dimessi_guariti [i+1]-d_naz$dimessi_guariti [i])/d_naz$dimessi_guariti [i]*100
+    d_naz$variazione_dg_per[i+1]<-(d_naz$dimessi_guariti[i+1]-d_naz$dimessi_guariti [i])/d_naz$dimessi_guariti [i]*100
     d_naz$variazione_d_ass[i+1]<-d_naz$deceduti[i+1]-d_naz$deceduti[i]
     d_naz$variazione_d_per[i+1]<-(d_naz$deceduti[i+1]-d_naz$deceduti[i])/d_naz$deceduti[i]*100
     d_naz$variazione_tc_ass[i+1]<-d_naz$totale_casi[i+1]-d_naz$totale_casi[i]
     d_naz$variazione_tc_per[i+1]<-(d_naz$totale_casi[i+1]-d_naz$totale_casi[i])/d_naz$totale_casi[i]*100
   }
+  # d_naz$mese<-as.numeric(substr(as.character(d_naz$data),6,7))
+  # d_naz$giorno<-as.numeric(substr(as.character(d_naz$data),9,10))
+  
   
   gat1<-gather(d_naz,"Statistica","Valore",ricoverati_con_sintomi:variazione_tc_per,na.rm=TRUE)
   gat1$Statistica<-toupper(gat1$Statistica)
@@ -486,7 +561,7 @@ server <- function(input, output,session) {
   gat2<-gat2[gat2$data==max(gat2$data),]
   gat2<-gat2[gat2$Statistica!="TOTALE OSPEDALIZZATI",]
   gat2<-gat2[gat2$Statistica!="TOTALE POSITIVI",]
-  gat2<-gat2[gat2$Statistica!="VARIAZIONE TOTALE POSITIVI",]
+  gat2<-gat2[gat2$Statistica!="VARIAZIONE NUOVI POSITIVI",]
   gat2<-gat2[gat2$Statistica!="NUOVI POSITIVI",]
   
   gat2$colore[gat2$Statistica=="RICOVERATI CON SINTOMI"]<-"rgba(34,113,179,1)"
@@ -500,28 +575,36 @@ server <- function(input, output,session) {
   
   # elaborazione province
   
-  file_province<-"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-province.json"%>%
-    GET() %>% 
-    content() %>% 
-    jsonlite::fromJSON(simplifyVector = FALSE)
+  # file_province<-"https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-province.json"%>%
+  #   GET() %>% 
+  #   content() %>% 
+  #   jsonlite::fromJSON(simplifyVector = FALSE)
+  d_prov<-read.csv("https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-province/dpc-covid19-ita-province.csv",sep=",",header=T,stringsAsFactors = F)
   
+  d_prov<-unique(d_prov)
   
-  d_prov<-data.frame("data"=as.character(),"stato"=as.character(),"codice_regione"=as.character(),"denominazione_regione"=as.character(),
-                     "codice_provincia"=as.numeric(),"denominazione_provincia"=as.character(),"sigla_provincia"=as.character(),
-                     "lat"=as.numeric(),"long"=as.numeric(),"totale_casi"=as.numeric())
-  
-  for(i in 1:length(file_province)){
-    if(is.null(file_province[[i]]$totale_casi)){
-      file_province[[i]]$totale_casi<-0
+  for(i in 1:nrow(d_prov)){
+    if(substring(d_prov$data[i],1,8)=="20202020"){
+      d_prov$data[i]<-paste0("2020",substring(d_prov$data[i],9,22))
     }
-    d_temp<-json_data_frame <- as.data.frame(file_province[[i]])
-    d_prov<-rbind(d_prov,d_temp)
   }
-  names(d_prov)[5]<-"prov_istat_code_num"
   
+  # d_prov<-data.frame("data"=as.character(),"stato"=as.character(),"codice_regione"=as.character(),"denominazione_regione"=as.character(),
+  #                    "codice_provincia"=as.numeric(),"denominazione_provincia"=as.character(),"sigla_provincia"=as.character(),
+  #                    "lat"=as.numeric(),"long"=as.numeric(),"totale_casi"=as.numeric())
+  # 
+  # for(i in 1:length(file_province)){
+  #   if(is.null(file_province[[i]]$totale_casi)){
+  #     file_province[[i]]$totale_casi<-0
+  #   }
+  #   d_temp<-json_data_frame <- as.data.frame(file_province[[i]])
+  #   d_prov<-rbind(d_prov,d_temp)
+  # }
+  names(d_prov)[5]<-"prov_istat_code_num"
   d_prov$denominazione_regione<-as.character(d_prov$denominazione_regione)
   d_prov$denominazione_regione[d_prov$denominazione_regione=="Emilia-Romagna"]<-"Emilia Romagna"
   d_prov$denominazione_provincia<-as.character(d_prov$denominazione_provincia)
+  d_prov$denominazione_provincia[d_prov$denominazione_provincia=="ForlÃ¬-Cesena"]<-"Forlì-Cesena"
   d_prov$sigla_provincia<-as.character(d_prov$sigla_provincia)
   d_prov$data<-as.POSIXct(d_prov$data)
   d_prov$stato<-as.character(d_prov$stato)
@@ -531,9 +614,40 @@ server <- function(input, output,session) {
   
   d_prov$lat[which(d_prov$denominazione_provincia=="In fase di definizione/aggiornamento")]<-NA
   d_prov$long[which(d_prov$denominazione_provincia=="In fase di definizione/aggiornamento")]<-NA
-
+  
 
   
+  # demos_reg_p<-aggregate(demos$Popolazione,by=list(demos$reg,demos$cod_reg),FUN=sum)
+  # names(demos_reg_p)<-c("reg","reg_istat_code_num","Popolazione")
+  # demos_reg_s<-aggregate(demos$Superficie,by=list(demos$reg,demos$cod_reg),FUN=sum)
+  # names(demos_reg_s)<-c("reg","reg_istat_code_num","Superficie")
+  # 
+  # demos_reg<-cbind(demos_reg_p,"Superficie"=demos_reg_s$Superficie)
+  # demos_reg$reg_istat_code_num[demos_reg$reg=="P.A. Bolzano"]<-41
+  # demos_reg$reg_istat_code_num[demos_reg$reg=="P.A. Trento"]<-42
+  # d_reg$reg_istat_code_num[d_reg$reg_name=="P.A. Bolzano"]<-41
+  # d_reg$reg_istat_code_num[d_reg$reg_name=="P.A. Trento"]<-42
+  # 
+  # 
+  # d_reg<-inner_join(d_reg,demos_reg,by="reg_istat_code_num")
+  # 
+  # 
+  # 
+  # names(demos)[c(7,8)]<-c("codice_regione","prov_istat_code_num")
+  # d_prov$codice_regione[d_prov$denominazione_regione=="P.A. Bolzano"]<-41
+  # d_prov$codice_regione[d_prov$denominazione_regione=="P.A. Trento"]<-42
+  # d_prov<-left_join(d_prov,demos,by=c("denominazione_provincia"))
+  # 
+  # d_reg$CasiPercentuale<-d_reg$totale_casi/max(na.omit(d_reg$Popolazione),1)*1000
+  # d_reg$casiSuperficie<-d_reg$totale_casi/max(na.omit(d_reg$Superficie),1)
+  # d_reg$PositiviPercentuale<-d_reg$totale_positivi/max(na.omit(d_reg$Popolazione),1)*1000
+  # d_reg$PositiviSuperficie<-d_reg$totale_positivi/max(na.omit(d_reg$Superficie),1)
+  # 
+  # 
+  # d_prov$CasiPercentuale<-d_prov$totale_casi/max(na.omit(d_prov$Popolazione),1)*1000
+  # d_prov$casiSuperficie<-d_prov$totale_casi/max(na.omit(d_prov$Superficie),1)
+
+
   Reg <- data.table(d_reg)
   Prov <- data.table(d_prov)
   Gat2<-data.table(gat2)
@@ -637,6 +751,9 @@ server <- function(input, output,session) {
         }
   })
   
+  output$mostradata<-renderPrint({
+    Giorno_Naz()$data
+  })
   
   Mortalita<-reactive({
     round(Giorno_Naz()$deceduti/Giorno_Naz()$totale_casi*100,2)
@@ -654,7 +771,7 @@ server <- function(input, output,session) {
     paste0(Guarigione(),"%")
   })
   
-  
+
   
   Giorno_Reg<-reactive({
         if(nrow(as.data.frame(d_reg[d_reg$data %like% input$date2,]))!=0){
@@ -705,22 +822,22 @@ server <- function(input, output,session) {
   })
   output$giornoAnalisi<-renderTable({
     
-    data.frame("Data"=paste0("Giorno visualizzato: ",as.Date(unique(Giorno_Reg()$data))))
+    data.frame("Data"=paste0("Giorno visualizzato: ",as.Date(unique(as.character(Giorno_Naz()$data)))))
   })
   
   output$totale_casi_naz <- renderValueBox({
     if(Giorno_Naz()$variazione_tc_ass>0){
       valueBox(
-        (paste0('Totale casi',"<br/>",formatC(Giorno_Naz()$totale_casi, format="d", big.mark=','),"<br/>")%>%
+        (paste0('Totale casi',"<br/>",formatC(Giorno_Naz()$totale_casi, format="d", big.mark='.',decimal.mark = ','),"<br/>")%>%
            lapply(htmltools::HTML))
-        ,paste0('+',formatC(Giorno_Naz()$variazione_tc_ass, format="d", big.mark=',')," contagi")
+        ,paste0('+',formatC(Giorno_Naz()$nuovi_positivi, format="d", big.mark='.',decimal.mark = ',')," contagi")
         ,icon = icon("procedures",lib='glyphicon')
         ,color = "black")
     }else{
       valueBox(
-        (paste0('Totale casi',"<br/>",formatC(Giorno_Naz()$totale_casi, format="d", big.mark=','),"<br/>")%>%
+        (paste0('Totale casi',"<br/>",formatC(Giorno_Naz()$totale_casi, format="d", big.mark='.',decimal.mark = ','),"<br/>")%>%
            lapply(htmltools::HTML))
-        ,paste0(formatC(Giorno_Naz()$variazione_tc_ass, format="d", big.mark=',')," contagi")
+        ,paste0(formatC(Giorno_Naz()$nuovi_positivi, format="d", big.mark='.',decimal.mark = ',')," contagi")
         ,icon = icon("procedures",lib='glyphicon')
         ,color = "black")
     }
@@ -729,16 +846,16 @@ server <- function(input, output,session) {
   output$positivi_naz <- renderValueBox({
     if(Giorno_Naz()$variazione_positivi>0){
       valueBox(
-        (paste0('Positivi',"<br/>",formatC(Giorno_Naz()$totale_positivi, format="d", big.mark=','),"<br/>")%>%
+        (paste0('Positivi',"<br/>",formatC(Giorno_Naz()$totale_positivi, format="d", big.mark='.',decimal.mark = ','),"<br/>")%>%
            lapply(htmltools::HTML))
-        ,paste0('+',formatC(Giorno_Naz()$variazione_positivi, format="d", big.mark=',')," variazione positivi")
+        ,paste0('+',formatC(Giorno_Naz()$variazione_positivi, format="d", big.mark='.',decimal.mark = ',')," variazione positivi")
         ,icon = icon("procedures",lib='glyphicon')
         ,color = "blue")
     }else{
       valueBox(
-        (paste0('Positivi',"<br/>",formatC(Giorno_Naz()$totale_positivi, format="d", big.mark=','),"<br/>")%>%
+        (paste0('Positivi',"<br/>",formatC(Giorno_Naz()$totale_positivi, format="d", big.mark='.',decimal.mark = ','),"<br/>")%>%
            lapply(htmltools::HTML))
-        ,paste0(formatC(Giorno_Naz()$variazione_positivi, format="d", big.mark=',')," variazione positivi")
+        ,paste0(formatC(Giorno_Naz()$variazione_positivi, format="d", big.mark='.',decimal.mark = ',')," variazione positivi")
         ,icon = icon("procedures",lib='glyphicon')
         ,color = "blue")
     }
@@ -747,16 +864,16 @@ server <- function(input, output,session) {
   output$dimessi_naz <- renderValueBox({
     if(Giorno_Naz()$variazione_dg_ass>0){
       valueBox(
-        (paste0('Dimessi guariti',"<br/>",formatC(Giorno_Naz()$dimessi_guariti, format="d", big.mark=','),"<br/>")%>%
+        (paste0('Dimessi guariti',"<br/>",formatC(Giorno_Naz()$dimessi_guariti, format="d", big.mark='.',decimal.mark = ','),"<br/>")%>%
            lapply(htmltools::HTML))
-        ,paste0('+',formatC(Giorno_Naz()$variazione_dg_ass, format="d", big.mark=',')," nuovi guariti")
+        ,paste0('+',formatC(Giorno_Naz()$variazione_dg_ass, format="d", big.mark='.',decimal.mark = ',')," nuovi guariti")
         ,icon = icon("check",lib='glyphicon')
         ,color = "navy")
     }else{
       valueBox(
-        (paste0('Dimessi guariti',"<br/>",formatC(Giorno_Naz()$dimessi_guariti, format="d", big.mark=','),"<br/>")%>%
+        (paste0('Dimessi guariti',"<br/>",formatC(Giorno_Naz()$dimessi_guariti, format="d", big.mark='.',decimal.mark = ','),"<br/>")%>%
            lapply(htmltools::HTML))
-        ,paste0(formatC(Giorno_Naz()$variazione_dg_ass, format="d", big.mark=',')," nuovi guariti")
+        ,paste0(formatC(Giorno_Naz()$variazione_dg_ass, format="d", big.mark='.',decimal.mark = ',')," nuovi guariti")
         ,icon = icon("check",lib='glyphicon')
         ,color = "navy")
     }
@@ -766,15 +883,15 @@ server <- function(input, output,session) {
   output$decessi_naz <- renderValueBox({
     if(Giorno_Naz()$variazione_d_ass>0){
       valueBox(
-        (paste0('Totale decessi',"<br/>",formatC(Giorno_Naz()$deceduti, format="d", big.mark=','),"<br/>")%>%
+        (paste0('Totale decessi',"<br/>",formatC(Giorno_Naz()$deceduti, format="d", big.mark='.',decimal.mark = ','),"<br/>")%>%
            lapply(htmltools::HTML))
-        ,paste0('+',formatC(Giorno_Naz()$variazione_d_ass, format="d", big.mark=',')," nuovi decessi"),
+        ,paste0('+',formatC(Giorno_Naz()$variazione_d_ass, format="d", big.mark='.',decimal.mark = ',')," nuovi decessi"),
         color = "red")
     }else{
       valueBox(
-        (paste0('Totale decessi',"<br/>",formatC(Giorno_Naz()$deceduti, format="d", big.mark=','),"<br/>")%>%
+        (paste0('Totale decessi',"<br/>",formatC(Giorno_Naz()$deceduti, format="d", big.mark='.',decimal.mark = ','),"<br/>")%>%
            lapply(htmltools::HTML))
-        ,paste0(formatC(Giorno_Naz()$variazione_d_ass, format="d", big.mark=',')," nuovi decessi"),
+        ,paste0(formatC(Giorno_Naz()$variazione_d_ass, format="d", big.mark='.',decimal.mark = ',')," nuovi decessi"),
         color = "red")
     }
     
@@ -1103,6 +1220,93 @@ server <- function(input, output,session) {
   
   ############################################################################################################
   
+  d_reg_ult<-reactive({
+    if(input$regione!=""){
+    as.data.frame(RegioneSerie()[RegioneSerie()$data==(max(RegioneSerie()$data)),])
+    }
+    })
+  
+
+  
+  dataset_regione<-reactive({
+    if(input$regione!=""){
+    data.frame("Totale_Casi"=d_reg_ult()$totale_casi,"Contagi"=d_reg_ult()$nuovi_positivi,
+               "Positivi"=d_reg_ult()$totale_positivi,"Guariti"=d_reg_ult()$dimessi_guariti,
+               "Decessi"=d_reg_ult()$deceduti
+               )
+    }
+    
+  })
+  
+  output$dt_reg<-renderTable({
+    dataset_regione()
+  })
+  
+  
+  dataset_regione_tassi<-reactive({
+    if(input$regione!=""){
+      data.frame("Tasso_Guarigione"=paste0(round((d_reg_ult()$dimessi_guariti/d_reg_ult()$totale_casi)*100,2),"%"),
+                 "Tasso_Mortalita"=paste0(round((d_reg_ult()$deceduti/d_reg_ult()$totale_casi)*100,2),"%"))
+    }
+    
+  })
+  
+  output$dt_reg_tassi<-renderTable({
+    dataset_regione_tassi()
+  })
+  
+  
+  
+  # dataset_regione_percentuale<-reactive({
+  #   if(input$regione!=""){
+  #     data.frame("Casi_su_1000_abitanti"=round((d_reg_ult()$CasiPercentuale),4),
+  #                "Positivi_su_1000_abitanti"=round(d_reg_ult()$PositiviPercentuale,4),
+  #                "Casi_su_mq"=round((d_reg_ult()$casiSuperficie),4),
+  #                "Positivi_su_mq"=round(d_reg_ult()$PositiviSuperficie,4)
+  #                )
+  #   }
+  #   
+  # })
+  # 
+  # output$dt_reg_perc<-renderTable({
+  #   dataset_regione_percentuale()
+  # })
+  
+
+  
+  d_prov_ultimi2<-d_prov[d_prov$data>=(max(d_prov$data)-(3600*24)),]
+  province<-unique(d_prov_ultimi2$denominazione_provincia)
+  for(i in 1: length(province)){
+    d_prov_ultimi2$nuovi_contagi[d_prov_ultimi2$denominazione_provincia==province[i]]<-d_prov_ultimi2$totale_casi[d_prov_ultimi2$denominazione_provincia==province[i]][2]-d_prov_ultimi2$totale_casi[d_prov_ultimi2$denominazione_provincia==province[i]][1]
+  }
+  d_prov_ultimo<-d_prov_ultimi2[d_prov_ultimi2$data==max(d_prov_ultimi2$data),]
+  d_prov_ultimo<-d_prov_ultimo[d_prov_ultimo$denominazione_provincia!="In fase di definizione/aggiornamento",]
+  
+  
+  
+  dataset_province1<-reactive({
+    if(input$regione!=""){
+      d_prov_ultimo[d_prov_ultimo$denominazione_regione==input$regione]
+    }
+  })
+  dataset_province2<-reactive({
+    if(input$regione!=""){
+      data.frame("Provincia"=dataset_province1()$denominazione_provincia,"Totale_Casi"=dataset_province1()$totale_casi,
+                 "Nuovi_Contagi"=dataset_province1()$nuovi_contagi)
+    }
+  })
+
+  output$dt_prov<-renderTable({
+    dataset_province2()
+  })
+  # 
+  # 
+  # 
+  # 
+  # output$dt_reg_perc<-renderTable({
+  #   dataset_regione_percentuale()
+  # })
+  
   
   output$TortaRegione<-renderPlotly({
     if(input$regione!=""){
@@ -1199,16 +1403,14 @@ server <- function(input, output,session) {
   }
   )
   
-  #######################################################################################################################
   
-  #Pagina 4 Informazioni 
   
-  ########################################################################################################################
-  
+
+
   
   ########################################################################################################################
   
-  # Pagina 5 #WORLD
+  # Pagina 4 #WORLD
   
   ########################################################################################################################
   world_spdf <- readOGR( 
@@ -1344,7 +1546,6 @@ server <- function(input, output,session) {
   
   
   Totale$Positivi<-Totale$Confermati-Totale$Guariti-Totale$Decessi
-  
   
   
   
@@ -1494,7 +1695,82 @@ server <- function(input, output,session) {
    
    
  })
+ 
+ #######################################################################################################################
+ 
+ #Pagina 5 Trend Nazioni
+ 
+ #######################################################################################################################
+ 
+ updateSelectizeInput(session, 'nazione', choices = unique(Totale$Nazione), server = TRUE)
+ 
+ Totale$date<-as.Date(Totale$date)
+ TotaleWorld<-data.table(Totale)
 
+ 
+ Nazione_fil<-reactive({
+   as.data.frame(TotaleWorld[TotaleWorld$Nazione %like% input$nazione])
+ })
+ 
+ 
+ SerieNazWorld<-reactive({
+   if(input$nazione!=""){
+     plot_ly(Nazione_fil(), x = Nazione_fil()$date)%>% add_lines(y = Nazione_fil()$Confermati, 
+                                                                   name = "Confermati", line = list(color='rgba(37,40,80,1)',shape = "spline"))%>% 
+       add_lines(y = Nazione_fil()$Guariti, name = "Guariti", 
+                 line = list(color='rgba(80,200,120,1)',shape = "spline"))%>% 
+       add_lines(y = Nazione_fil()$Decessi, name = "Deceduti", 
+                 line = list(color='rgba(255,0,0,1)',shape = "spline")) %>%
+       add_lines(y = Nazione_fil()$Positivi, name = "Attualmente positivi",
+                 line = list(color='rgba(34,113,179,1)',shape = "spline"))%>% 
+       layout(
+         title = paste0("Andamento ",unique(Nazione_fil()$Nazione)),
+         xaxis = list(
+           rangeselector = list(
+             buttons = list(
+               list(
+                 count = 7,
+                 label = "7 days",
+                 step = "day",
+                 stepmode = "backward"),
+               list(
+                 count = 15,
+                 label = "15 days",
+                 step = "day",
+                 stepmode = "backward"),
+               list(
+                 count = 30,
+                 label = "30 days",
+                 step = "day",
+                 stepmode = "backward"),
+               list(
+                 count = 2,
+                 label = "2 months",
+                 step = "month",
+                 stepmode = "todate"),
+               list(step = "all"))),
+           rangeslider = list(type = "Data")),
+         yaxis = list(title = "Numero Persone"))%>% 
+       layout(plot_bgcolor='rgb(236, 240, 245)') %>% 
+       layout(paper_bgcolor='rgb(236, 240, 245)')%>% 
+       layout(legend = list(x = 0, y = 0.9))
+   }
+   
+ })
+ 
+ output$serieNazWorld<-renderPlotly({
+   SerieNazWorld()
+ })
+ 
+ 
+ 
+ 
+ #######################################################################################################################
+ 
+ #Pagina 5 Informazioni 
+ 
+ ########################################################################################################################
+ 
   
 }
 
